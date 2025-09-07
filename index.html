@@ -96,6 +96,20 @@
     const quoteEl = document.getElementById("quote");
     const quotes = ["Don’t dig straight down!", "The creeper is always watching...", "Punching trees gives wood.", "Diamonds are a miner’s best friend.", "There is no escape from the void.", "Keep your inventory tidy!", "Monsters spawn in darkness…", "Sleep to skip the night.", "Watch your step in the Nether.", "Villagers gossip when you're not looking.","Sometimes iron golems give flowers to the villager children!","Endermen hate bath time!","Different colored dyes can be made from a variety of materials, cook cactus in a furnace to get green dye!","Creepers are the easiest obtainable source of gunpowder.",	"Obsidian can be mined with a diamond pickaxe.","Wolves and iron golems won't attack creepers.","Attacking a wolf will cause any wolves nearby to turn hostile and attack you.","Break blocks, pick up resources. Use the crafting grid to make helpful items. Now you're crafting!","You have endless lives, but your items drop to the ground when you die. Hurry back to pick them up!","It's a good idea to build a place where you can safely spend the night.","Use the right tool for the job! Chopping wood with an axe is much faster than using your hands.","Even in Minecraft you'll get hungry, so try to find something to eat before that happens.","Digging straight down or straight up might not be a great idea.","Monsters spawn in the dark. Craft a torch to brighten up any space.","Beds are great! Craft one to quickly pass the night and set your respawn point.","Survival mode has 4 different difficulty levels - Peaceful, Easy, Normal, and Hard. Or play Creative mode and get endless resources!","Be careful when you swim. Stay under water for too long and you'll run out of air.","Do people actually read these?","The world of Minecraft is endlessly surprising. You'll find lots of different animals, plants, ...and even !@#$%^&*","Tếu Tếu too bel... Minecraft's gone","You can milk a cow","You can milk a cow","There's a chance a creeper is behind you... RIGHT NOW"
 ];
+  <div id="music-controls" style="margin-top:18px; text-align:center;">
+    <button id="play-btn" aria-pressed="false" style="padding:8px 14px; font-size:16px; cursor:pointer;">
+      ▶ Play music
+    </button>
+    <button id="mute-btn" aria-pressed="false" style="padding:6px 10px; margin-left:8px; font-size:14px; cursor:pointer;">
+      🔊
+    </button>
+    <div style="font-size:12px; opacity:.8; margin-top:6px;">Tip: chạm bất kỳ đâu trên trang để bắt đầu chơi (autoplay policy).</div>
+  </div>
+
+  <!-- audio element (ẩn) -->
+  <!-- Nếu muốn offline: đặt file "music.mp3" trong repo. Nếu dùng URL ngoài, thay src tương ứng -->
+  <audio id="bg-music" loop preload="auto" src="music.mp3"></audio>
+
 
     function updateClock() {
       const now = new Date();
@@ -140,6 +154,97 @@ setInterval(updateQuote, 10000); // đổi mỗi 10 giây
 
     updateClock();
     setInterval(updateClock, 1000);
+    // --- MUSIC HANDLER ---
+const music = document.getElementById('bg-music');
+const playBtn = document.getElementById('play-btn');
+const muteBtn = document.getElementById('mute-btn');
+
+// restore state
+const wasPlaying = localStorage.getItem('mc_clock_playing') === '1';
+const wasMuted = localStorage.getItem('mc_clock_muted') === '1';
+
+function setPlayUI(isPlaying) {
+  playBtn.innerText = isPlaying ? '⏸ Pause music' : '▶ Play music';
+  playBtn.setAttribute('aria-pressed', isPlaying ? 'true' : 'false');
+}
+
+function setMuteUI(isMuted) {
+  muteBtn.innerText = isMuted ? '🔇' : '🔊';
+  muteBtn.setAttribute('aria-pressed', isMuted ? 'true' : 'false');
+  music.muted = isMuted;
+}
+
+// Try to resume if previously playing (requires user gesture)
+if (wasMuted) setMuteUI(true);
+else setMuteUI(false);
+
+if (wasPlaying) {
+  // we cannot auto-play without gesture — prepare UI and wait for user gesture
+  setPlayUI(true);
+} else {
+  setPlayUI(false);
+}
+
+// Play/pause toggle from button
+playBtn.addEventListener('click', async (e) => {
+  e.stopPropagation();
+  if (music.paused) {
+    try {
+      await music.play();
+      setPlayUI(true);
+      localStorage.setItem('mc_clock_playing', '1');
+    } catch (err) {
+      // blocked — tell user to tap page
+      setPlayUI(false);
+      console.warn('Autoplay blocked:', err);
+      alert('Trình duyệt chặn autoplay. Hãy chạm vào trang hoặc ấn Play lần nữa.');
+    }
+  } else {
+    music.pause();
+    setPlayUI(false);
+    localStorage.setItem('mc_clock_playing', '0');
+  }
+});
+
+// Mute toggle
+muteBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  const isMuted = !music.muted;
+  setMuteUI(isMuted);
+  localStorage.setItem('mc_clock_muted', isMuted ? '1' : '0');
+});
+
+// Shortcut: press M to mute/unmute, Space to toggle play
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'm' || e.key === 'M') {
+    const isMuted = !music.muted;
+    setMuteUI(isMuted);
+    localStorage.setItem('mc_clock_muted', isMuted ? '1' : '0');
+  } else if (e.key === ' ' || e.code === 'Space') {
+    e.preventDefault();
+    playBtn.click();
+  }
+});
+
+// Many browsers require a user gesture — use the first pointerdown anywhere to "unlock" audio
+function unlockAudioOnFirstGesture() {
+  const handler = async () => {
+    // if previously wanted playing, try to start
+    if (wasPlaying || localStorage.getItem('mc_clock_playing') === '1') {
+      try {
+        await music.play();
+        setPlayUI(true);
+        localStorage.setItem('mc_clock_playing', '1');
+      } catch (err) {
+        console.warn('Play still blocked:', err);
+      }
+    }
+    // remove listener after first interaction
+    window.removeEventListener('pointerdown', handler);
+  };
+  window.addEventListener('pointerdown', handler);
+}
+unlockAudioOnFirstGesture();
   </script>
 </body>
 </html>
