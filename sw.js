@@ -1,10 +1,12 @@
 const CACHE_NAME = "minecraft-clock-v1";
 const urlsToCache = [
   "/",                // root
-  "/index.html",      // file chính
-  "/manifest.json",   // manifest
-  "/icon.png"         // icon
+  "/index.html",
+  "/manifest.json",
+  // "/icon.png", // nếu có icon
+  "/music.mp3"        // <-- add file nhạc ở đây để cache offline
 ];
+
 
 // Cài đặt SW + cache file
 self.addEventListener("install", (event) => {
