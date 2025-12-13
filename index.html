@@ -260,6 +260,36 @@
   }
 }
 
+.weather-btn {
+  position: fixed;
+  bottom: 20px;
+  left: 20px; /* đổi nếu bro muốn góc khác */
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 10px 14px;
+  border-radius: 14px;
+
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  text-decoration: none;
+  font-size: 13px;
+
+  backdrop-filter: blur(10px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.weather-btn .material-symbols-outlined {
+  font-size: 20px;
+}
+
+.weather-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
   </style>
 </head>
 <body>
@@ -302,6 +332,16 @@
   <ul id="suggestions"></ul>
 </form>
 
+<a
+  href="https://www.msn.com/vi-vn/weather/forecast"
+  class="weather-btn"
+  title="Thời tiết MSN"
+>
+  <span class="material-symbols-outlined">
+    partly_cloudy_day
+  </span>
+  <span class="label">Thời tiết MSN</span>
+</a>
 
 
  <audio id="tick-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_62f3d17051.mp3?filename=click-124467.mp3"></audio>
@@ -342,7 +382,7 @@ const quotes = [
   "Cẩn thận khi bơi. Ở dưới nước quá lâu là hết oxy đó.",
   "Có ai thật sự đọc mấy dòng này không?",
   "Thế giới Minecraft luôn đầy bất ngờ. Bạn sẽ gặp đủ loại động vật, cây cối… và cả !@#$%^&*",
-  "Tếu tếu too bel… Minecraft bị lỗi rồi 💀",
+  "Ki Ki too bel… Minecraft bị lỗi rồi 💀",
   "Bạn có thể vắt sữa bò.",
   "Ừ đúng rồi, bạn có thể vắt sữa bò.",
   "Có khả năng một con Creeper đang ở ngay sau lưng bạn… NGAY BÂY GIỜ."
