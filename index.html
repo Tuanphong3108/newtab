@@ -312,7 +312,40 @@
     const tick = document.getElementById("tick-sound");
     const xpFill = document.getElementById("xp-fill");
     const quoteEl = document.getElementById("quote");
-    const quotes = ["Don’t dig straight down!", "The creeper is always watching...", "Punching trees gives wood.", "Diamonds are a miner’s best friend.", "There is no escape from the void.", "Keep your inventory tidy!", "Monsters spawn in darkness…", "Sleep to skip the night.", "Watch your step in the Nether.", "Villagers gossip when you're not looking.","Sometimes iron golems give flowers to the villager children!","Endermen hate bath time!","Different colored dyes can be made from a variety of materials, cook cactus in a furnace to get green dye!","Creepers are the easiest obtainable source of gunpowder.",	"Obsidian can be mined with a diamond pickaxe.","Wolves and iron golems won't attack creepers.","Attacking a wolf will cause any wolves nearby to turn hostile and attack you.","Break blocks, pick up resources. Use the crafting grid to make helpful items. Now you're crafting!","You have endless lives, but your items drop to the ground when you die. Hurry back to pick them up!","It's a good idea to build a place where you can safely spend the night.","Use the right tool for the job! Chopping wood with an axe is much faster than using your hands.","Even in Minecraft you'll get hungry, so try to find something to eat before that happens.","Digging straight down or straight up might not be a great idea.","Monsters spawn in the dark. Craft a torch to brighten up any space.","Beds are great! Craft one to quickly pass the night and set your respawn point.","Survival mode has 4 different difficulty levels - Peaceful, Easy, Normal, and Hard. Or play Creative mode and get endless resources!","Be careful when you swim. Stay under water for too long and you'll run out of air.","Do people actually read these?","The world of Minecraft is endlessly surprising. You'll find lots of different animals, plants, ...and even !@#$%^&*","Tếu Tếu too bel... Minecraft's gone","You can milk a cow","You can milk a cow","There's a chance a creeper is behind you... RIGHT NOW"
+const quotes = [
+  "Đừng bao giờ đào thẳng xuống!",
+  "Creeper lúc nào cũng đang dòm bạn đó...",
+  "Đấm cây là có gỗ.",
+  "Kim cương là bạn thân nhất của thợ mỏ.",
+  "Không có lối thoát khỏi hư không (void).",
+  "Giữ túi đồ cho gọn gàng đi!",
+  "Quái vật sinh ra trong bóng tối…",
+  "Ngủ để bỏ qua màn đêm.",
+  "Cẩn thận từng bước trong Nether.",
+  "Dân làng buôn chuyện khi bạn không nhìn đâu.",
+  "Đôi khi Iron Golem sẽ tặng hoa cho trẻ em dân làng đó!",
+  "Enderman ghét tắm lắm!",
+  "Thuốc nhuộm có nhiều màu khác nhau: nấu xương rồng trong lò sẽ ra thuốc nhuộm xanh lá!",
+  "Creeper là nguồn thuốc súng dễ kiếm nhất.",
+  "Obsidian chỉ đào được bằng cuốc kim cương.",
+  "Sói và Iron Golem sẽ không tấn công Creeper.",
+  "Đánh một con sói là cả bầy sói gần đó sẽ nổi điên và lao vào bạn.",
+  "Phá khối, nhặt tài nguyên, dùng bàn chế tạo để làm đồ hữu ích. Vậy là bạn đã crafting rồi đó!",
+  "Bạn có vô hạn mạng, nhưng chết là rớt đồ. Chạy lại nhặt nhanh lên!",
+  "Nên xây một nơi an toàn để sống sót qua đêm.",
+  "Dùng đúng công cụ cho đúng việc! Chặt gỗ bằng rìu nhanh hơn tay không rất nhiều.",
+  "Ngay cả trong Minecraft bạn cũng sẽ đói, nên kiếm đồ ăn trước khi chuyện đó xảy ra.",
+  "Đào thẳng xuống hoặc thẳng lên thường không phải ý hay đâu.",
+  "Quái vật sinh ra trong bóng tối. Chế tạo đuốc để thắp sáng mọi nơi.",
+  "Giường xịn lắm! Chế tạo một cái để bỏ qua ban đêm và đặt điểm hồi sinh.",
+  "Chế độ Sinh tồn có 4 độ khó: Hòa bình, Dễ, Thường và Khó. Hoặc chơi Sáng tạo để có tài nguyên vô hạn!",
+  "Cẩn thận khi bơi. Ở dưới nước quá lâu là hết oxy đó.",
+  "Có ai thật sự đọc mấy dòng này không?",
+  "Thế giới Minecraft luôn đầy bất ngờ. Bạn sẽ gặp đủ loại động vật, cây cối… và cả !@#$%^&*",
+  "Tếu tếu too bel… Minecraft bị lỗi rồi 💀",
+  "Bạn có thể vắt sữa bò.",
+  "Ừ đúng rồi, bạn có thể vắt sữa bò.",
+  "Có khả năng một con Creeper đang ở ngay sau lưng bạn… NGAY BÂY GIỜ."
 ];
 
     function updateClock() {
