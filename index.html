@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
   <title>Minecraft Clock Ultimate</title>
 
   <!-- manifest + service worker -->
@@ -78,6 +79,90 @@
       0% { transform: scale(1.2); }
       100% { transform: scale(1); }
     }
+
+.google-news-btn {
+  position: fixed;
+  bottom: 12px;
+  right: 12px;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 6px 12px;
+  font-size: 12px;
+
+  color: #fff;
+
+  /* nền gốc: đen */
+  background: rgba(0, 0, 0, 0.45);
+
+  border-radius: 10px;
+  text-decoration: none;
+  z-index: 9999;
+
+  /* mượt từ từ */
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    background-color 0.3s ease,
+    background-position 0.6s ease;
+}
+
+/* 🌈 gradient Google (để sẵn, nhưng chưa hiện) */
+.google-news-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+
+  background: linear-gradient(
+    135deg,
+    #ea4335,
+    #fbbc05,
+    #34a853,
+    #4285f4
+  );
+  background-size: 300% 300%;
+
+  opacity: 0;
+  transition: opacity 0.3s ease;
+
+  z-index: -1;
+}
+
+/* 🚀 hover = nổi + fade sang gradient + gradient chuyển động */
+.google-news-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+}
+
+.google-news-btn:hover::before {
+  opacity: 1;
+  animation: googleGradientMove 3s ease infinite;
+}
+
+/* icon outline → fill */
+.google-news-btn:hover .material-symbols-outlined {
+  font-variation-settings:
+    'FILL' 1,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 20;
+}
+
+@keyframes googleGradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -85,6 +170,20 @@
   <div id="date">Loading...</div>
   <div class="xp-bar"><div class="xp-fill" id="xp-fill"></div></div>
   <div class="quote" id="quote"></div>
+
+<a
+  href="https://news.google.com"
+  rel="noopener noreferrer"
+  class="google-news-btn"
+>
+  <span class="material-symbols-outlined news-icon">
+    newsmode
+  </span>
+  <span class="news-text">
+    Đọc báo trên Google News
+  </span>
+</a>
+
 
  <audio id="tick-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_62f3d17051.mp3?filename=click-124467.mp3"></audio>
 
