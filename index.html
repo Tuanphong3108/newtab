@@ -327,19 +327,6 @@
   line-height: 1;
 }
 
-.enable-audio {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-  color: white;
-  font-size: 20px;
-  border: none;
-  cursor: pointer;
-  z-index: 9999;
-  backdrop-filter: blur(6px);
-}
-
-
 
 .weather-btn:hover {
   transform: translateY(-3px);
@@ -451,11 +438,6 @@ main {
   <ul id="suggestions"></ul>
 </form>
 
-  <button id="enable-audio" class="enable-audio">
-  🔊 Bật âm thanh
-</button>
-
-
 <a
   href="https://tuanphong3108.github.io/weather"
   class="weather-btn"
@@ -469,12 +451,6 @@ main {
 
 
  <audio id="tick-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_62f3d17051.mp3?filename=click-124467.mp3"></audio>
-  <audio
-  id="ambient-sound"
-  src="Am_thanh_tieng_gio_thoi_la_cay_ri_rao-www_tiengdong_com.mp3"
-  loop
-></audio>
-
 
   <script>
     const clock = document.getElementById("clock");
@@ -683,30 +659,6 @@ function nextWallpaper() {
 /* timer chính */
 let timer = setInterval(nextWallpaper, 10000);
 </script>
-
-<script>
-const btn = document.getElementById("enable-audio");
-const tick = document.getElementById("tick-sound");
-const ambient = document.getElementById("ambient-sound");
-
-btn.addEventListener("click", async () => {
-  try {
-    ambient.volume = 0.4;
-    ambient.loop = true;
-    await ambient.play();
-
-    tick.volume = 0.6;
-    await tick.play();
-    tick.pause();
-    tick.currentTime = 0;
-
-    btn.remove(); // xóa overlay
-  } catch (e) {
-    alert("Chrome vẫn chặn âm thanh 💀");
-  }
-});
-</script>
-
 
 
 </body>
