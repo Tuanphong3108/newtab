@@ -38,15 +38,6 @@
       background-attachment: fixed;
     }
 
-    body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-
-  background: rgba(0, 0, 0, 0.25); /* chỉnh số này */
-  z-index: -1;
-}
-
 
     body.dark {
       background-color: #202020;
@@ -108,10 +99,6 @@
       max-width: 80%;
     }
 
-    @keyframes tickZoom {
-      0% { transform: scale(1.2); }
-      100% { transform: scale(1); }
-    }
 
 .google-news-btn {
   position: fixed;
@@ -355,11 +342,12 @@ body::before {
   position: fixed;
   inset: 0;
 
-  background: rgba(0, 0, 0, 0.35); /* chỉnh độ tối tại đây 👈 */
+  background: rgba(0, 0, 0, 0.35);
 
   z-index: 2;
-  pointer-events: none;
+  pointer-events: none; /* ⭐ CỨU MẠNG */
 }
+
 
 /* ===== UI / CONTENT (SEARCH, BUTTON, CLOCK...) ===== */
 .ui,
@@ -368,6 +356,17 @@ main {
   position: relative;
   z-index: 3;
 }
+
+    #clock,
+#date,
+.xp-bar,
+.quote,
+#google-search,
+.weather-btn {
+  position: relative;
+  z-index: 5;
+}
+
 
 
   </style>
