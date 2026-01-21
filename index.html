@@ -282,7 +282,11 @@
 .weather-btn {
   position: fixed;
   bottom: 20px;
-  left: 20px; /* đổi nếu bro muốn góc khác */
+  left: 20px;
+  z-index: 5;
+}
+
+
 
   display: flex;
   align-items: center;
@@ -357,15 +361,15 @@ main {
   z-index: 3;
 }
 
-    #clock,
+#clock,
 #date,
 .xp-bar,
 .quote,
-#google-search,
-.weather-btn {
+#google-search {
   position: relative;
   z-index: 5;
 }
+
 
 
 
