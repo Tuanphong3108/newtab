@@ -306,24 +306,53 @@
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
 }
 
-    /* ===== BACKGROUND LAYERS ===== */
+/* ===== BACKGROUND BASE (ảnh đang hiển thị) ===== */
 #bg-base {
-  z-index: -4;
+  position: fixed;
+  inset: 0;
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  z-index: 0;
 }
 
+/* ===== BACKGROUND FADE (ảnh mới fade-in đè lên) ===== */
 #bg-fade {
-  z-index: -3;
+  position: fixed;
+  inset: 0;
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
   opacity: 0;
-  transition: opacity 2.5s ease; /* 👈 fade-in chậm hơn */
+  transition: opacity 3s ease; /* fade-in chậm hơn ở đây 👈 */
+
+  z-index: 1;
 }
 
-/* lớp phủ tối LUÔN ở trên ảnh */
+/* ===== LỚP PHỦ TỐI (LUÔN Ở TRÊN NỀN) ===== */
 body::before {
-  z-index: -2;
+  content: "";
+  position: fixed;
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.35); /* chỉnh độ tối tại đây 👈 */
+
+  z-index: 2;
+  pointer-events: none;
 }
 
+/* ===== UI / CONTENT (SEARCH, BUTTON, CLOCK...) ===== */
+.ui,
+.container,
+main {
+  position: relative;
+  z-index: 3;
+}
 
-    
 
   </style>
 </head>
