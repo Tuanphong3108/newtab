@@ -327,6 +327,19 @@
   line-height: 1;
 }
 
+.enable-audio {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  font-size: 20px;
+  border: none;
+  cursor: pointer;
+  z-index: 9999;
+  backdrop-filter: blur(6px);
+}
+
+
 
 .weather-btn:hover {
   transform: translateY(-3px);
@@ -437,6 +450,11 @@ main {
 
   <ul id="suggestions"></ul>
 </form>
+
+  <button id="enable-audio" class="enable-audio">
+  🔊 Bật âm thanh
+</button>
+
 
 <a
   href="https://tuanphong3108.github.io/weather"
@@ -667,33 +685,26 @@ let timer = setInterval(nextWallpaper, 10000);
 </script>
 
 <script>
+const btn = document.getElementById("enable-audio");
 const tick = document.getElementById("tick-sound");
 const ambient = document.getElementById("ambient-sound");
 
-function unlockAudio() {
-  // ambient
-  ambient.volume = 0.4;
-  ambient.play().catch(() => {});
+btn.addEventListener("click", async () => {
+  try {
+    ambient.volume = 0.4;
+    ambient.loop = true;
+    await ambient.play();
 
-  // tick unlock
-  tick.volume = 0.6;
-  tick.play().catch(() => {});
-  tick.pause();
-  tick.currentTime = 0;
+    tick.volume = 0.6;
+    await tick.play();
+    tick.pause();
+    tick.currentTime = 0;
 
-  cleanup();
-}
-
-function cleanup() {
-  ["pointerdown", "mousedown", "keydown", "touchstart"].forEach(e =>
-    document.removeEventListener(e, unlockAudio)
-  );
-}
-
-// BẮT MỌI THỨ CÓ THỂ LÀ USER GESTURE
-["pointerdown", "mousedown", "keydown", "touchstart"].forEach(e =>
-  document.addEventListener(e, unlockAudio, { once: true })
-);
+    btn.remove(); // xóa overlay
+  } catch (e) {
+    alert("Chrome vẫn chặn âm thanh 💀");
+  }
+});
 </script>
 
 
