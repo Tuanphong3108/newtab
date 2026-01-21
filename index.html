@@ -666,7 +666,7 @@ function nextWallpaper() {
 let timer = setInterval(nextWallpaper, 10000);
 </script>
 
-  <script>
+<script>
 const tick = document.getElementById("tick-sound");
 const ambient = document.getElementById("ambient-sound");
 
@@ -675,19 +675,27 @@ function unlockAudio() {
   ambient.volume = 0.4;
   ambient.play().catch(() => {});
 
-  // tick (play thử 1 cái để browser cho phép)
+  // tick unlock
   tick.volume = 0.6;
   tick.play().catch(() => {});
   tick.pause();
   tick.currentTime = 0;
 
-  document.removeEventListener("click", unlockAudio);
-  document.removeEventListener("keydown", unlockAudio);
+  cleanup();
 }
 
-document.addEventListener("click", unlockAudio);
-document.addEventListener("keydown", unlockAudio);
+function cleanup() {
+  ["pointerdown", "mousedown", "keydown", "touchstart"].forEach(e =>
+    document.removeEventListener(e, unlockAudio)
+  );
+}
+
+// BẮT MỌI THỨ CÓ THỂ LÀ USER GESTURE
+["pointerdown", "mousedown", "keydown", "touchstart"].forEach(e =>
+  document.addEventListener(e, unlockAudio, { once: true })
+);
 </script>
+
 
 
 </body>
