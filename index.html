@@ -660,6 +660,17 @@ function nextWallpaper() {
 let timer = setInterval(nextWallpaper, 10000);
 </script>
 
+  <script>
+        window.addEventListener('keydown', function (e) {
+            // Kiểm tra phím F5 (keyCode 116)
+            // Hoặc Ctrl + R (e.ctrlKey && e.keyCode === 82)
+            if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
+                e.preventDefault();
+                alert("Phím F5 đã bị vô hiệu hóa trên trang này.");
+            }
+        });
+    </script>
+
 
 </body>
 </html>
