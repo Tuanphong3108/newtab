@@ -356,7 +356,7 @@
   background-repeat: no-repeat;
 
   opacity: 0;
-  transition: opacity 1s ease; /* fade-in chậm hơn ở đây 👈 */
+  transition: opacity 3s ease; /* fade-in chậm hơn ở đây 👈 */
 
   z-index: 1;
 }
@@ -611,8 +611,14 @@ const wallpapers = [
   "615802245_908346898372301_8773952032515201631_n.jpg",
   "616096760_1209385248043242_1202122262240250767_n.jpg",
   "617542532_1209385251376575_7827773134694530496_n.jpg",
-  "617384039_908346758372315_4904101852639288301_n.jpg"
+  "617384039_908346758372315_4904101852639288301_n.jpg",
+  "615402949_908346868372304_8723238111964282758_n.jpg",
+  "615432968_908346755038982_2894947876094395905_n.jpg",
+  "615750670_908357801704544_461140656517169480_n.jpg",
+  "616840461_908346851705639_3835618761264542953_n.jpg",
+  "617106721_908346745038983_5813826472798894713_n.jpg"
 ];
+
 
 const base = document.getElementById("bg-base");
 const fade = document.getElementById("bg-fade");
@@ -646,12 +652,12 @@ function nextWallpaper() {
 
     /* reset timer */
     clearInterval(timer);
-    timer = setInterval(nextWallpaper, 5000);
-  }, 1200); // = thời gian transition
+    timer = setInterval(nextWallpaper, 10000);
+  }, 3000); // = thời gian transition
 }
 
 /* timer chính */
-let timer = setInterval(nextWallpaper, 5000);
+let timer = setInterval(nextWallpaper, 10000);
 </script>
 
 
