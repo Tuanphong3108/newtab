@@ -451,6 +451,12 @@ main {
 
 
  <audio id="tick-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_62f3d17051.mp3?filename=click-124467.mp3"></audio>
+  <audio
+  id="ambient-sound"
+  src="Am_thanh_tieng_gio_thoi_la_cay_ri_rao-www_tiengdong_com.mp3"
+  loop
+></audio>
+
 
   <script>
     const clock = document.getElementById("clock");
@@ -658,6 +664,29 @@ function nextWallpaper() {
 
 /* timer chính */
 let timer = setInterval(nextWallpaper, 10000);
+</script>
+
+  <script>
+const tick = document.getElementById("tick-sound");
+const ambient = document.getElementById("ambient-sound");
+
+function unlockAudio() {
+  // ambient
+  ambient.volume = 0.4;
+  ambient.play().catch(() => {});
+
+  // tick (play thử 1 cái để browser cho phép)
+  tick.volume = 0.6;
+  tick.play().catch(() => {});
+  tick.pause();
+  tick.currentTime = 0;
+
+  document.removeEventListener("click", unlockAudio);
+  document.removeEventListener("keydown", unlockAudio);
+}
+
+document.addEventListener("click", unlockAudio);
+document.addEventListener("keydown", unlockAudio);
 </script>
 
 
