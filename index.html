@@ -305,11 +305,33 @@
   transform: translateY(-3px);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
 }
+
+    /* ===== BACKGROUND LAYERS ===== */
+#bg-base,
+#bg-fade {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* layer fade nằm trên */
+#bg-fade {
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+
     
 
   </style>
 </head>
 <body>
+  <div id="bg-base"></div>
+  <div id="bg-fade"></div>
   <div id="clock">00:00:00</div>
   <div id="date">Loading...</div>
   <div class="xp-bar"><div class="xp-fill" id="xp-fill"></div></div>
@@ -515,7 +537,7 @@ document.addEventListener("click", e => {
 });
 </script>
 
-  <script>
+<script>
 const wallpapers = [
   "615733159_1209385214709912_2203603145646646726_n.jpg",
   "615802245_908346898372301_8773952032515201631_n.jpg",
@@ -524,21 +546,44 @@ const wallpapers = [
   "617384039_908346758372315_4904101852639288301_n.jpg"
 ];
 
+const base = document.getElementById("bg-base");
+const fade = document.getElementById("bg-fade");
+
 let index = Math.floor(Math.random() * wallpapers.length);
 
-/* preload cho mượt */
+/* preload */
 wallpapers.forEach(src => {
   const img = new Image();
   img.src = src;
 });
 
-/* set nền ban đầu */
-document.body.style.backgroundImage = `url('${wallpapers[index]}')`;
+/* nền ban đầu */
+base.style.backgroundImage = `url('${wallpapers[index]}')`;
 
-setInterval(() => {
+function nextWallpaper() {
   index = (index + 1) % wallpapers.length;
-  document.body.style.backgroundImage = `url('${wallpapers[index]}')`;
-}, 5000);
+
+  /* đặt ảnh mới vào layer fade */
+  fade.style.backgroundImage = `url('${wallpapers[index]}')`;
+  fade.style.opacity = "1";
+
+  /* sau khi fade xong */
+  setTimeout(() => {
+    /* chuyển ảnh mới xuống base */
+    base.style.backgroundImage = fade.style.backgroundImage;
+
+    /* reset layer fade */
+    fade.style.opacity = "0";
+    fade.style.backgroundImage = "";
+
+    /* reset timer */
+    clearInterval(timer);
+    timer = setInterval(nextWallpaper, 5000);
+  }, 1200); // = thời gian transition
+}
+
+/* timer chính */
+let timer = setInterval(nextWallpaper, 5000);
 </script>
 
 
