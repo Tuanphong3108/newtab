@@ -508,6 +508,10 @@ main {
   transform: rotate(90deg);
 }
 
+body.paused * {
+  animation-play-state: paused !important;
+  transition: none !important;
+}
 
 
   </style>
@@ -829,6 +833,46 @@ appsOverlay.addEventListener("click", e => {
 });
 </script>
 
+<script>
+let blurTimer = null;
+let pageSuspended = false;
+
+/* Khi tab mất focus */
+window.addEventListener("blur", () => {
+  blurTimer = setTimeout(() => {
+    /* ===== XỬ LÍ DOM SAU 5S ===== */
+
+    console.log("[NewTab] Suspended to save RAM");
+
+    /* dừng animation bằng class */
+    document.body.classList.add("paused");
+
+    /* clear interval (clock, wallpaper, quote...) */
+    let highest = setInterval(() => {}, 1000);
+    for (let i = 0; i <= highest; i++) {
+      clearInterval(i);
+    }
+
+    /* đánh dấu đã suspend */
+    pageSuspended = true;
+  }, 5000);
+});
+
+/* Khi tab được focus lại */
+window.addEventListener("focus", () => {
+  /* chưa đủ 5s → hủy suspend */
+  if (blurTimer) {
+    clearTimeout(blurTimer);
+    blurTimer = null;
+  }
+
+  /* nếu đã suspend → reload */
+  if (pageSuspended) {
+    console.log("[NewTab] Reload after suspend");
+    location.reload();
+  }
+});
+</script>
 
 
 
