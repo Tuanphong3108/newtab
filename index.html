@@ -394,14 +394,14 @@ main {
 /* ===== APPS BUTTON ===== */
 #apps-btn {
   position: fixed;
-  top: 16px;
-  right: 16px;
+  top: 16px;      /* 👈 đổi từ bottom */
+  right: 16px;    /* giữ nguyên */
 
   display: flex;
   align-items: center;
   gap: 8px;
 
-  padding: 8px 12px;
+  padding: 10px 14px;
   border-radius: 14px;
 
   background: rgba(0, 0, 0, 0.55);
@@ -410,17 +410,16 @@ main {
   cursor: pointer;
 
   font-size: 13px;
-  z-index: 5;
+  z-index: 10000; /* 👈 tăng nhẹ cho chắc, đè mọi overlay */
 
   backdrop-filter: blur(10px);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 #apps-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
 }
-
 
 #apps-btn .material-symbols-outlined {
   font-size: 20px;
@@ -428,24 +427,26 @@ main {
 
 /* ===== OVERLAY ===== */
 #apps-overlay {
-  position: fixed;     /* 🔥 then chốt */
-  inset: 0;             /* top:0 left:0 right:0 bottom:0 */
+  position: fixed;
+  inset: 0;
 
-  background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
 
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
 
-  z-index: 9999;
-}
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
 
+  z-index: 20;
+}
 
 #apps-overlay.show {
   opacity: 1;
   pointer-events: auto;
-  display: flex;
 }
 
 /* ===== DIALOG ===== */
@@ -499,10 +500,11 @@ main {
   cursor: pointer;
   z-index: 2;
 
-  transition: transform 0.25s ease; /* ❗ chỉ xoay */
+  transition: background 0.2s ease, transform 0.2s ease;
 }
 
 #apps-close:hover {
+  background: rgba(255, 255, 255, 0.15);
   transform: rotate(90deg);
 }
 
@@ -524,15 +526,16 @@ main {
 </button>
 
 <!-- ===== APPS DIALOG ===== -->
- <div class="apps-dialog"></div>
+<div id="apps-overlay">
+  <div class="apps-dialog">
+    <button id="apps-close" title="Close">✕</button>
 
-  <button id="apps-close" title="Close">✕</button>
-
-  <iframe
-    id="apps-iframe"
-    src="https://tuanphong3108.github.io/gemini-launcher/google-produce/"
-    frameborder="0"
-  ></iframe>
+    <iframe
+      src="https://tuanphong3108.github.io/gemini-launcher/google-produce/"
+      frameborder="0"
+      loading="lazy"
+    ></iframe>
+  </div>
 </div>
 
 
@@ -810,31 +813,21 @@ const appsBtn = document.getElementById("apps-btn");
 const appsOverlay = document.getElementById("apps-overlay");
 const appsClose = document.getElementById("apps-close");
 
-/* mở dialog */
 appsBtn.addEventListener("click", () => {
   appsOverlay.classList.add("show");
 });
 
-/* đóng bằng nút X */
 appsClose.addEventListener("click", () => {
   appsOverlay.classList.remove("show");
 });
 
-/* click ra ngoài dialog → đóng */
+/* click nền tối để đóng */
 appsOverlay.addEventListener("click", e => {
   if (e.target === appsOverlay) {
     appsOverlay.classList.remove("show");
   }
 });
-
-/* ESC để đóng (bonus xịn) */
-document.addEventListener("keydown", e => {
-  if (e.key === "Escape") {
-    appsOverlay.classList.remove("show");
-  }
-});
 </script>
-
 
 
 
