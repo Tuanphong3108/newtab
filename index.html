@@ -394,14 +394,14 @@ main {
 /* ===== APPS BUTTON ===== */
 #apps-btn {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  top: 16px;
+  right: 16px;
 
   display: flex;
   align-items: center;
   gap: 8px;
 
-  padding: 10px 14px;
+  padding: 8px 12px;
   border-radius: 14px;
 
   background: rgba(0, 0, 0, 0.55);
@@ -417,9 +417,10 @@ main {
 }
 
 #apps-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
 }
+
 
 #apps-btn .material-symbols-outlined {
   font-size: 20px;
@@ -500,14 +501,38 @@ main {
   cursor: pointer;
   z-index: 2;
 
-  transition: background 0.2s ease, transform 0.2s ease;
+  transition: transform 0.25s ease; /* ❗ chỉ xoay */
 }
 
 #apps-close:hover {
-  background: rgba(255, 255, 255, 0.15);
   transform: rotate(90deg);
 }
 
+/* ===== PROGRESS BAR ===== */
+.apps-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+
+  background: rgba(255, 255, 255, 0.1);
+  z-index: 3;
+  overflow: hidden;
+}
+
+.apps-progress-bar {
+  height: 100%;
+  width: 0%;
+
+  background: linear-gradient(
+    90deg,
+    #4facfe,
+    #00f2fe
+  );
+
+  transition: width 0.3s ease;
+}
 
 
   </style>
@@ -526,16 +551,18 @@ main {
 </button>
 
 <!-- ===== APPS DIALOG ===== -->
-<div id="apps-overlay">
-  <div class="apps-dialog">
-    <button id="apps-close" title="Close">✕</button>
-
-    <iframe
-      src="https://tuanphong3108.github.io/gemini-launcher/google-produce/"
-      frameborder="0"
-      loading="lazy"
-    ></iframe>
+ <div class="apps-dialog">
+  <div class="apps-progress">
+    <div class="apps-progress-bar"></div>
   </div>
+
+  <button id="apps-close" title="Close">✕</button>
+
+  <iframe
+    id="apps-iframe"
+    src="https://tuanphong3108.github.io/gemini-launcher/google-produce/"
+    frameborder="0"
+  ></iframe>
 </div>
 
 
@@ -812,22 +839,48 @@ let timer = setInterval(nextWallpaper, 10000);
 const appsBtn = document.getElementById("apps-btn");
 const appsOverlay = document.getElementById("apps-overlay");
 const appsClose = document.getElementById("apps-close");
+const iframe = document.getElementById("apps-iframe");
+const progressBar = document.querySelector(".apps-progress-bar");
+
+let fakeProgress;
 
 appsBtn.addEventListener("click", () => {
   appsOverlay.classList.add("show");
+
+  /* reset progress */
+  progressBar.style.width = "0%";
+
+  let progress = 0;
+  fakeProgress = setInterval(() => {
+    if (progress < 90) {
+      progress += Math.random() * 8;
+      progressBar.style.width = progress + "%";
+    }
+  }, 200);
+});
+
+iframe.addEventListener("load", () => {
+  clearInterval(fakeProgress);
+  progressBar.style.width = "100%";
+
+  setTimeout(() => {
+    progressBar.style.width = "0%";
+  }, 400);
 });
 
 appsClose.addEventListener("click", () => {
   appsOverlay.classList.remove("show");
+  clearInterval(fakeProgress);
 });
 
-/* click nền tối để đóng */
 appsOverlay.addEventListener("click", e => {
   if (e.target === appsOverlay) {
     appsOverlay.classList.remove("show");
+    clearInterval(fakeProgress);
   }
 });
 </script>
+
 
 
 
