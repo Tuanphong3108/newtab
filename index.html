@@ -835,44 +835,41 @@ appsOverlay.addEventListener("click", e => {
 
 <script>
 let blurTimer = null;
-let pageSuspended = false;
+let wiped = false;
 
-/* Khi tab mất focus */
+/* mất focus */
 window.addEventListener("blur", () => {
   blurTimer = setTimeout(() => {
-    /* ===== XỬ LÍ DOM SAU 5S ===== */
+    console.log("[NewTab] Wipe DOM to save RAM");
 
-    console.log("[NewTab] Suspended to save RAM");
+    /* clear toàn bộ interval */
+    let max = setInterval(() => {}, 1000);
+    for (let i = 0; i <= max; i++) clearInterval(i);
 
-    /* dừng animation bằng class */
-    document.body.classList.add("paused");
+    /* xóa toàn bộ UI */
+    document.body.innerHTML = "";
 
-    /* clear interval (clock, wallpaper, quote...) */
-    let highest = setInterval(() => {}, 1000);
-    for (let i = 0; i <= highest; i++) {
-      clearInterval(i);
-    }
+    /* tắt animation */
+    document.body.style.background = "#000";
 
-    /* đánh dấu đã suspend */
-    pageSuspended = true;
+    wiped = true;
   }, 5000);
 });
 
-/* Khi tab được focus lại */
+/* quay lại tab */
 window.addEventListener("focus", () => {
-  /* chưa đủ 5s → hủy suspend */
   if (blurTimer) {
     clearTimeout(blurTimer);
     blurTimer = null;
   }
 
-  /* nếu đã suspend → reload */
-  if (pageSuspended) {
-    console.log("[NewTab] Reload after suspend");
+  if (wiped) {
+    console.log("[NewTab] Reload after wipe");
     location.reload();
   }
 });
 </script>
+
 
 
 
