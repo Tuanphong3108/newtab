@@ -391,6 +391,122 @@ main {
   z-index: 5;
 }
 
+/* ===== APPS BUTTON ===== */
+#apps-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 10px 14px;
+  border-radius: 14px;
+
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+
+  font-size: 13px;
+  z-index: 5;
+
+  backdrop-filter: blur(10px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#apps-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+#apps-btn .material-symbols-outlined {
+  font-size: 20px;
+}
+
+/* ===== OVERLAY ===== */
+#apps-overlay {
+  position: fixed;
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+
+  z-index: 20;
+}
+
+#apps-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ===== DIALOG ===== */
+.apps-dialog {
+  position: relative;
+  width: 90%;
+  max-width: 1000px;
+  height: 80%;
+
+  background: #111;
+  border-radius: 18px;
+  overflow: hidden;
+
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  animation: dialogPop 0.25s ease;
+}
+
+@keyframes dialogPop {
+  from {
+    transform: scale(0.96);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* iframe */
+.apps-dialog iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* ===== CLOSE BUTTON ===== */
+#apps-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+
+  border: none;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 18px;
+
+  cursor: pointer;
+  z-index: 2;
+
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+#apps-close:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: rotate(90deg);
+}
 
 
 
@@ -403,6 +519,25 @@ main {
   <div id="date">Loading...</div>
   <div class="xp-bar"><div class="xp-fill" id="xp-fill"></div></div>
   <div class="quote" id="quote"></div>
+  <!-- ===== APPS BUTTON ===== -->
+<button id="apps-btn" title="Apps">
+  <span class="material-symbols-outlined">apps</span>
+  <span class="label">Apps</span>
+</button>
+
+<!-- ===== APPS DIALOG ===== -->
+<div id="apps-overlay">
+  <div class="apps-dialog">
+    <button id="apps-close" title="Close">✕</button>
+
+    <iframe
+      src="https://tuanphong3108.github.io/gemini-launcher/google-produce/"
+      frameborder="0"
+      loading="lazy"
+    ></iframe>
+  </div>
+</div>
+
 
 <a
   href="https://news.google.com"
@@ -672,7 +807,29 @@ let timer = setInterval(nextWallpaper, 10000);
         }
     });
 </script>
+
+<script>
+const appsBtn = document.getElementById("apps-btn");
+const appsOverlay = document.getElementById("apps-overlay");
+const appsClose = document.getElementById("apps-close");
+
+appsBtn.addEventListener("click", () => {
+  appsOverlay.classList.add("show");
+});
+
+appsClose.addEventListener("click", () => {
+  appsOverlay.classList.remove("show");
+});
+
+/* click nền tối để đóng */
+appsOverlay.addEventListener("click", e => {
+  if (e.target === appsOverlay) {
+    appsOverlay.classList.remove("show");
+  }
+});
 </script>
+
+
 
 
 </body>
