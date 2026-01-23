@@ -833,45 +833,6 @@ appsOverlay.addEventListener("click", e => {
 });
 </script>
 
-<script>
-let blurTimer = null;
-let wiped = false;
-
-/* mất focus */
-window.addEventListener("blur", () => {
-  blurTimer = setTimeout(() => {
-    console.log("[NewTab] Wipe DOM to save RAM");
-
-    /* clear toàn bộ interval */
-    let max = setInterval(() => {}, 1000);
-    for (let i = 0; i <= max; i++) clearInterval(i);
-
-    /* xóa toàn bộ UI */
-    document.body.innerHTML = "";
-
-    /* tắt animation */
-    document.body.style.background = "#000";
-
-    wiped = true;
-  }, 5000);
-});
-
-/* quay lại tab */
-window.addEventListener("focus", () => {
-  if (blurTimer) {
-    clearTimeout(blurTimer);
-    blurTimer = null;
-  }
-
-  if (wiped) {
-    console.log("[NewTab] Reload after wipe");
-    location.reload();
-  }
-});
-</script>
-
-
-
 
 </body>
 </html>
