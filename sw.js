@@ -3,7 +3,7 @@ const urlsToCache = [
   "/",                // root
   "/index.html",
   "/manifest.json",
-  // "/icon.png", // nếu có icon
+  "/search.png",
   "/music.mp3",       // <-- add file nhạc ở đây để cache offline
   'search.html',
   'manifest.json',
