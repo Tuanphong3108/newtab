@@ -1,10 +1,13 @@
-const CACHE_NAME = "minecraft-clock-v1";
+const CACHE_NAME = "minecraft-clock-v2";
 const urlsToCache = [
   "/",                // root
   "/index.html",
   "/manifest.json",
   // "/icon.png", // nếu có icon
-  "/music.mp3"        // <-- add file nhạc ở đây để cache offline
+  "/music.mp3",       // <-- add file nhạc ở đây để cache offline
+  'search_hub.html',
+  'manifest.json',
+  'https://tuanphong3108.github.io/md3-loading/Loading_Indicator.gif'
 ];
 
 
