@@ -5,7 +5,7 @@ const urlsToCache = [
   "/manifest.json",
   // "/icon.png", // nếu có icon
   "/music.mp3",       // <-- add file nhạc ở đây để cache offline
-  'search_hub.html',
+  'search.html',
   'manifest.json',
   'https://tuanphong3108.github.io/md3-loading/Loading_Indicator.gif'
 ];
