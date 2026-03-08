@@ -2,8 +2,8 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Hub - Full Evolution V6.1</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Search Hub - Mobile Optimized V6.2</title>
     <!-- Google Sans Flex & Material Symbols -->
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
@@ -11,49 +11,91 @@
     <style>
         :root {
             --md-sys-color-primary: #a1c9ff;
-            --md-sys-color-on-primary: #003258;
             --md-sys-color-surface: #08090a;
-            --md-sys-color-on-surface: #e2e2e6;
-            --md-sys-color-surface-container: rgba(45, 49, 54, 0.5);
+            --md-sys-color-surface-container: rgba(45, 49, 54, 0.6);
             --glass-border: rgba(255, 255, 255, 0.1);
         }
 
         body {
             font-family: 'Google Sans Flex', sans-serif;
             background-color: var(--md-sys-color-surface);
-            color: var(--md-sys-color-on-surface);
+            color: #e2e2e6;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            height: 100dvh; /* Dynamic viewport height cho mobile */
             margin: 0;
             overflow: hidden;
             position: relative;
         }
 
-        /* Nền động mờ ảo Gradient */
+        /* Nền động */
         .bg-blobs {
-            position: absolute; inset: 0; z-index: -1; filter: blur(120px); overflow: hidden;
+            position: absolute; inset: 0; z-index: -1; filter: blur(80px); overflow: hidden;
         }
         .blob {
-            position: absolute; width: 60vw; height: 60vw;
+            position: absolute; width: 80vw; height: 80vw;
             background: linear-gradient(45deg, #004a77, #74b0ff);
-            opacity: 0.15; border-radius: 50%;
-            animation: move 30s infinite alternate ease-in-out;
+            opacity: 0.12; border-radius: 50%;
+            animation: move 25s infinite alternate ease-in-out;
         }
-        .blob-2 { background: linear-gradient(135deg, #2b343b, #a1c9ff); right: -10%; top: -10%; animation-delay: -10s; }
+        .blob-2 { background: linear-gradient(135deg, #1e252b, #a1c9ff); right: -20%; bottom: -10%; animation-delay: -5s; }
+
         @keyframes move { 
-            0% { transform: translate(-15%, -15%) rotate(0deg); }
-            100% { transform: translate(20%, 20%) rotate(360deg); }
+            0% { transform: translate(-10%, -10%) rotate(0deg); }
+            100% { transform: translate(15%, 15%) rotate(180deg); }
         }
 
-        /* Đồng hồ Digital */
+        /* Bố cục chính: Đưa search xuống dưới cho dễ bấm tay cái */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Đẩy clock lên trên, search xuống dưới */
+            padding: 40px 20px 60px 20px;
+            z-index: 10;
+        }
+
         #clock {
-            font-size: 6rem; font-weight: 700; margin-bottom: 2.5rem;
-            color: var(--md-sys-color-primary); letter-spacing: -3px; opacity: 0.9;
-            filter: drop-shadow(0 0 15px rgba(161, 201, 255, 0.4));
-            user-select: none;
+            font-size: 4.5rem; font-weight: 700; text-align: center;
+            color: var(--md-sys-color-primary); letter-spacing: -2px;
+            filter: drop-shadow(0 0 10px rgba(161, 201, 255, 0.3));
+            margin-top: 10vh;
+        }
+
+        /* Search Bar Optimized */
+        .search-container { width: 100%; max-width: 600px; align-self: center; position: relative; }
+
+        .search-bar {
+            background: var(--md-sys-color-surface-container);
+            backdrop-filter: blur(25px); border: 1px solid var(--glass-border);
+            border-radius: 28px; padding: 14px 22px; display: flex; align-items: center; gap: 14px;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .search-bar:focus-within {
+            background: rgba(60, 65, 70, 0.9);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            border-color: var(--md-sys-color-primary);
+        }
+
+        .search-input {
+            flex: 1; background: transparent; border: none; outline: none;
+            font-size: 1.15rem; color: #fff; font-weight: 500;
+        }
+
+        /* Suggestions: Hiện ngược lên trên hoặc tối ưu diện tích */
+        .suggestions {
+            position: absolute; bottom: calc(100% + 12px); left: 0; right: 0;
+            background: rgba(28, 30, 32, 0.95); backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border); border-radius: 24px;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.5); display: none;
+            max-height: 45vh; overflow-y: auto; padding: 12px 0;
+        }
+
+        .suggestion-item { 
+            padding: 14px 22px; display: flex; align-items: center; gap: 16px;
+            -webkit-tap-highlight-color: transparent;
         }
 
         /* Material Ripple */
@@ -61,138 +103,90 @@
         .ripple-effect {
             position: absolute; background: rgba(161, 201, 255, 0.3);
             border-radius: 50%; transform: scale(0);
-            animation: ripple 0.6s cubic-bezier(0, 0, 0.2, 1); pointer-events: none;
+            animation: ripple 0.6s ease-out; pointer-events: none;
         }
         @keyframes ripple { to { transform: scale(4); opacity: 0; } }
 
-        /* Search Container */
-        .search-container { width: 100%; max-width: 680px; position: relative; padding: 0 24px; z-index: 10; }
-
-        .search-bar {
-            background: var(--md-sys-color-surface-container);
-            backdrop-filter: blur(30px); border: 1px solid var(--glass-border);
-            border-radius: 36px; padding: 18px 30px; display: flex; align-items: center; gap: 18px;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .search-bar:focus-within {
-            background: rgba(45, 49, 54, 0.8);
-            box-shadow: 0 0 0 2px var(--md-sys-color-primary), 0 12px 60px rgba(0,0,0,0.6);
-            transform: translateY(-6px);
-        }
-
-        .search-input {
-            flex: 1; background: transparent; border: none; outline: none;
-            font-size: 1.3rem; color: #fff; font-weight: 500;
-        }
-
-        /* Suggestions Dropdown */
-        .suggestions {
-            position: absolute; top: calc(100% + 14px); left: 24px; right: 24px;
-            background: rgba(24, 26, 28, 0.98); backdrop-filter: blur(40px);
-            border: 1px solid var(--glass-border); border-radius: 28px;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.7); display: none; z-index: 20;
-            overflow-y: auto; max-height: 400px; padding: 16px 0;
-            animation: slideFade 0.3s ease-out;
-        }
-        @keyframes slideFade { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .suggestion-item { padding: 16px 30px; cursor: pointer; display: flex; align-items: center; gap: 18px; transition: background 0.2s; }
-        .suggestion-item:hover { background: rgba(255, 255, 255, 0.08); }
-        .suggestion-item:hover .material-symbols-outlined { font-variation-settings: 'FILL' 1; color: var(--md-sys-color-primary); }
-
-        /* Dialog */
+        /* Dialog Optimized for Mobile */
         .dialog-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.85);
-            display: none; justify-content: center; align-items: center;
-            z-index: 100; backdrop-filter: blur(15px);
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+            display: none; justify-content: center; align-items: flex-end; /* Hiện từ dưới lên */
+            z-index: 100; backdrop-filter: blur(10px);
         }
         .dialog {
-            background: #1a1c1e; border: 1px solid var(--glass-border);
-            border-radius: 44px; padding: 40px; width: 90%; max-width: 480px;
-            transform: scale(0.9); opacity: 0; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            background: #1a1c1e; border-top: 1px solid var(--glass-border);
+            border-radius: 32px 32px 0 0; padding: 32px 24px 40px 24px; width: 100%;
+            transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
         }
-        .dialog.active { transform: scale(1); opacity: 1; }
+        .dialog.active { transform: translateY(0); }
 
-        .search-options { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 28px; }
+        .search-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .option-btn {
-            padding: 24px; border-radius: 28px; background: rgba(255, 255, 255, 0.04);
-            border: 1px solid transparent; cursor: pointer; display: flex; flex-direction: column;
-            align-items: center; gap: 14px; transition: all 0.3s;
+            padding: 20px 10px; border-radius: 20px; background: rgba(255,255,255,0.05);
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
         }
-        .option-btn:hover { background: var(--md-sys-color-primary); color: #003258; transform: translateY(-6px); box-shadow: 0 8px 24px rgba(161, 201, 255, 0.4); }
+        .option-btn:active { background: var(--md-sys-color-primary); color: #003258; }
 
         /* Loading */
-        .loading-gif { height: 30px; filter: invert(1) brightness(1.5); display: none; }
+        .loading-gif { height: 24px; filter: grayscale(1) brightness(1.5); display: none; }
         .transition-loader {
             position: fixed; inset: 0; background: #08090a; z-index: 1000;
-            display: none; flex-direction: column; justify-content: center; align-items: center; gap: 30px;
+            display: none; flex-direction: column; justify-content: center; align-items: center; gap: 20px;
         }
-        .big-loader { width: 160px; filter: invert(1) brightness(1.5); }
-
-        .kbs-hint {
-            position: absolute; left: 50%; transform: translateX(-50%); bottom: 30px; 
-            font-size: 0.85rem; color: rgba(255,255,255,0.2); letter-spacing: 1px;
-        }
+        .big-loader { width: 120px; filter: grayscale(1) brightness(1.5); }
     </style>
 </head>
 <body>
 
     <div class="bg-blobs">
         <div class="blob"></div>
-        <div class="blob blob-2"></div>
+        <div class="blob-2 blob"></div>
     </div>
 
-    <div id="clock">00:00</div>
+    <div class="main-content">
+        <div id="clock">00:00</div>
 
-    <div class="search-container">
-        <div class="search-bar" id="searchBar">
-            <span class="material-symbols-outlined text-blue-300 transition-all duration-300" id="mainIcon">search</span>
-            <input type="text" class="search-input" id="searchInput" placeholder="Tìm kiếm hoặc nhập URL..." autofocus autocomplete="off">
-            <img src="https://tuanphong3108.github.io/md3-loading/Loading_Indicator.gif" alt="loading" class="loading-gif" id="loader">
-            <span class="material-symbols-outlined text-gray-500 cursor-pointer hover:text-red-400 p-1" id="clearBtn">close</span>
+        <div class="search-container">
+            <div class="suggestions" id="suggestionsBox"></div>
+            
+            <div class="search-bar" id="searchBar">
+                <span class="material-symbols-outlined text-blue-300 transition-all" id="mainIcon">search</span>
+                <input type="text" class="search-input" id="searchInput" placeholder="Tìm kiếm hoặc URL..." inputmode="search" autocomplete="off">
+                <img src="https://tuanphong3108.github.io/md3-loading/Loading_Indicator.gif" alt="loading" class="loading-gif" id="loader">
+                <span class="material-symbols-outlined text-gray-500 p-1" id="clearBtn">close</span>
+            </div>
         </div>
-        
-        <div class="suggestions" id="suggestionsBox"></div>
     </div>
 
-    <div class="kbs-hint uppercase font-bold text-center">BY PHONG VN</div>
-
-    <!-- Dialog -->
+    <!-- Dialog (Bottom Sheet Style) -->
     <div class="dialog-overlay" id="dialogOverlay">
         <div class="dialog" id="searchDialog">
-            <div class="text-blue-300 flex justify-center mb-6">
-                <span class="material-symbols-outlined text-7xl">explore</span>
-            </div>
-            <h2 class="text-2xl font-bold mb-2 text-center text-white">Định hướng tìm kiếm</h2>
-            <p class="text-gray-400 text-sm mb-8 px-4 italic text-center truncate" id="queryDisplay"></p>
+            <div class="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6"></div>
+            <h2 class="text-xl font-bold mb-1 text-center text-white">Chọn hành động</h2>
+            <p class="text-gray-500 text-xs mb-6 text-center truncate px-4" id="queryDisplay"></p>
             
             <div class="search-options">
                 <button class="option-btn ripple" data-url="https://www.google.com/search?q=">
-                    <span class="material-symbols-outlined text-4xl">search</span><span class="font-bold">Google</span>
+                    <span class="material-symbols-outlined text-3xl">search</span><span class="text-sm font-bold">Google</span>
                 </button>
                 <button class="option-btn ripple" data-url="https://www.youtube.com/results?search_query=">
-                    <span class="material-symbols-outlined text-4xl">play_circle</span><span class="font-bold">YouTube</span>
-                </button>
-                <button class="option-btn ripple" data-url="https://www.facebook.com/search/top/?q=">
-                    <span class="material-symbols-outlined text-4xl">group</span><span class="font-bold">Facebook</span>
+                    <span class="material-symbols-outlined text-3xl">play_circle</span><span class="text-sm font-bold">YouTube</span>
                 </button>
                 <button class="option-btn ripple" data-url="https://chatgpt.com/?q=">
-                    <span class="material-symbols-outlined text-4xl">auto_awesome</span><span class="font-bold">ChatGPT</span>
+                    <span class="material-symbols-outlined text-3xl">auto_awesome</span><span class="text-sm font-bold">ChatGPT</span>
                 </button>
-                <button class="option-btn ripple w-full col-span-2 flex-row gap-6" data-url="https://www.google.com/search?udm=50&q=">
-                    <span class="material-symbols-outlined text-4xl">psychology</span>
-                    <span class="font-extrabold text-lg uppercase tracking-wider">AI Search</span>
+                <button class="option-btn ripple" data-url="https://www.google.com/search?udm=50&q=">
+                    <span class="material-symbols-outlined text-3xl">psychology</span><span class="text-sm font-bold">AI Search</span>
                 </button>
             </div>
-            <button class="mt-10 w-full py-4 rounded-3xl bg-white/5 hover:bg-white/10 text-gray-400 font-bold transition-all ripple" id="closeDialog">HỦY BỎ</button>
+            <button class="mt-6 w-full py-4 rounded-2xl bg-white/5 text-gray-400 font-bold ripple" id="closeDialog">ĐÓNG</button>
         </div>
     </div>
 
     <!-- Transition -->
     <div class="transition-loader" id="transitionLoader">
         <img src="https://tuanphong3108.github.io/md3-loading/Loading_Indicator.gif" alt="Redirecting" class="big-loader">
-        <p class="text-blue-300 font-black text-2xl tracking-[0.5em] animate-pulse" id="transitionText">OPENING NEW TAB...</p>
+        <p class="text-blue-300 font-bold tracking-[0.3em]" id="transitionText">ĐANG MỞ TAB MỚI...</p>
     </div>
 
     <script>
@@ -205,11 +199,10 @@
         const searchDialog = document.getElementById('searchDialog');
         const queryDisplay = document.getElementById('queryDisplay');
         const transitionLoader = document.getElementById('transitionLoader');
-        const transitionText = document.getElementById('transitionText');
         const clockElement = document.getElementById('clock');
 
         let debounceTimer;
-        const HISTORY_KEY = 'search_history_phong_v6_1';
+        const HISTORY_KEY = 'search_history_mobile_v6';
         let searchHistory = JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
 
         function updateClock() {
@@ -224,14 +217,9 @@
             return pattern.test(str.trim());
         };
 
-        function escapeJS(str) { return str.replace(/'/g, "\\'"); }
-
-        // Logic Mở Tab Mới và Reload Trang Hiện Tại
         function executeGo(val) {
             if (!val.trim()) return;
-            
             if (isURL(val)) {
-                transitionText.innerText = "OPENING URL...";
                 const finalUrl = val.startsWith('http') ? val : `https://${val}`;
                 openInNewTab(finalUrl);
             } else {
@@ -242,27 +230,22 @@
         function openInNewTab(url) {
             suggestionsBox.style.display = 'none';
             transitionLoader.style.display = 'flex';
-            
-            // Mở tab mới
             window.open(url, '_blank');
-            
-            // Reload trang hiện tại sau 800ms để dọn dẹp và reset
-            setTimeout(() => {
-                location.reload();
-            }, 800);
+            setTimeout(() => { location.reload(); }, 1000);
         }
 
-        // Ripple Effect
-        document.addEventListener('mousedown', (e) => {
+        // Ripple Effect cho mobile touch
+        document.addEventListener('touchstart', (e) => {
             const target = e.target.closest('.ripple');
             if (target) {
                 const rect = target.getBoundingClientRect();
+                const touch = e.touches[0];
                 const size = Math.max(rect.width, rect.height) * 2;
                 const ripple = document.createElement('span');
+                ripple.className = 'ripple-effect';
                 ripple.style.width = ripple.style.height = `${size}px`;
-                ripple.style.left = `${e.clientX - rect.left - size/2}px`;
-                ripple.style.top = `${e.clientY - rect.top - size/2}px`;
-                ripple.classList.add('ripple-effect');
+                ripple.style.left = `${touch.clientX - rect.left - size/2}px`;
+                ripple.style.top = `${touch.clientY - rect.top - size/2}px`;
                 target.appendChild(ripple);
                 ripple.addEventListener('animationend', () => ripple.remove());
             }
@@ -271,12 +254,11 @@
         function renderInitialSuggestions() {
             if (searchInput.value.trim() !== "") return;
             if (searchHistory.length > 0) {
-                suggestionsBox.innerHTML = `<div class="px-8 py-2 text-[11px] font-black text-blue-400 tracking-widest opacity-40 uppercase">Gần đây</div>` + 
+                suggestionsBox.innerHTML = `<div class="px-6 py-2 text-[10px] font-black text-blue-400 opacity-40 uppercase tracking-widest">Gần đây</div>` + 
                     searchHistory.map(q => `
-                        <div class="suggestion-item ripple" onclick="executeGo('${escapeJS(q)}')">
+                        <div class="suggestion-item ripple" onclick="executeGo('${q.replace(/'/g, "\\'")}')">
                             <span class="material-symbols-outlined ${isURL(q) ? 'text-green-300' : 'text-blue-300'} opacity-50">${isURL(q) ? 'public' : 'history'}</span>
-                            <span class="truncate flex-1 font-medium">${q}</span>
-                            <span class="material-symbols-outlined text-sm opacity-20 hover:opacity-100 p-1" onclick="removeFromHistory(event, '${escapeJS(q)}')">close</span>
+                            <span class="truncate flex-1 text-sm font-medium">${q}</span>
                         </div>
                     `).join('');
                 suggestionsBox.style.display = 'block';
@@ -287,26 +269,20 @@
 
         function fetchSuggestions(query) {
             if (!query.trim()) { renderInitialSuggestions(); return; }
-            
             if (isURL(query)) {
                 mainIcon.innerText = 'public';
                 mainIcon.classList.add('text-green-400');
-                mainIcon.classList.remove('text-blue-300');
-                suggestionsBox.innerHTML = `<div class="px-8 py-2 text-[11px] font-black text-green-400 tracking-widest opacity-40 uppercase">Truy cập trực tiếp (Tab mới)</div>
-                    <div class="suggestion-item ripple" onclick="executeGo('${escapeJS(query)}')">
-                        <span class="material-symbols-outlined text-green-300">link</span>
-                        <span class="truncate font-medium text-gray-200">${query}</span>
-                    </div>`;
+                suggestionsBox.innerHTML = `<div class="suggestion-item ripple" onclick="executeGo('${query.replace(/'/g, "\\'")}')">
+                    <span class="material-symbols-outlined text-green-300">link</span>
+                    <span class="truncate font-medium text-sm">Đi tới: ${query}</span>
+                </div>`;
                 suggestionsBox.style.display = 'block';
-                loader.style.display = 'none';
                 return;
-            } else {
-                mainIcon.innerText = 'search';
-                mainIcon.classList.remove('text-green-400');
-                mainIcon.classList.add('text-blue-300');
             }
-
+            mainIcon.innerText = 'search';
+            mainIcon.classList.remove('text-green-400');
             loader.style.display = 'block';
+            
             const oldScript = document.getElementById('jsonp-search');
             if (oldScript) oldScript.remove();
             const script = document.createElement('script');
@@ -318,10 +294,10 @@
         window.handleSuggestions = function(data) {
             loader.style.display = 'none';
             const queries = data[1];
-            let html = queries.slice(0, 8).map(q => `
-                <div class="suggestion-item ripple" onclick="executeGo('${escapeJS(q)}')">
+            let html = queries.slice(0, 6).map(q => `
+                <div class="suggestion-item ripple" onclick="executeGo('${q.replace(/'/g, "\\'")}')">
                     <span class="material-symbols-outlined text-gray-500 opacity-50">search</span>
-                    <span class="truncate font-medium text-gray-300">${q}</span>
+                    <span class="truncate text-sm font-medium text-gray-300">${q}</span>
                 </div>
             `).join('');
             suggestionsBox.innerHTML = html;
@@ -330,22 +306,14 @@
 
         searchInput.oninput = (e) => {
             clearTimeout(debounceTimer);
-            if (!e.target.value.trim()) {
-                mainIcon.innerText = 'search';
-                mainIcon.classList.remove('text-green-400');
-                renderInitialSuggestions();
-            } else {
-                debounceTimer = setTimeout(() => fetchSuggestions(e.target.value), 200);
-            }
+            if (!e.target.value.trim()) renderInitialSuggestions();
+            else debounceTimer = setTimeout(() => fetchSuggestions(e.target.value), 200);
         };
 
-        searchInput.onkeydown = (e) => {
-            if (e.key === 'Enter') executeGo(searchInput.value);
-            if (e.key === 'Escape') { searchInput.value = ''; suggestionsBox.style.display = 'none'; }
-        };
+        searchInput.onkeydown = (e) => { if (e.key === 'Enter') executeGo(searchInput.value); };
 
         function openSearchDialog(query) {
-            searchHistory = [query, ...searchHistory.filter(i => i !== query)].slice(0, 10);
+            searchHistory = [query, ...searchHistory.filter(i => i !== query)].slice(0, 8);
             localStorage.setItem(HISTORY_KEY, JSON.stringify(searchHistory));
             suggestionsBox.style.display = 'none';
             queryDisplay.innerText = `"${query}"`;
@@ -353,35 +321,20 @@
             setTimeout(() => searchDialog.classList.add('active'), 10);
         }
 
-        function removeFromHistory(e, query) {
-            e.stopPropagation();
-            searchHistory = searchHistory.filter(item => item !== query);
-            localStorage.setItem(HISTORY_KEY, JSON.stringify(searchHistory));
-            renderInitialSuggestions();
-        }
-
         document.getElementById('closeDialog').onclick = () => {
             searchDialog.classList.remove('active');
-            setTimeout(() => dialogOverlay.style.display = 'none', 300);
+            setTimeout(() => dialogOverlay.style.display = 'none', 350);
         };
 
         document.querySelectorAll('.option-btn').forEach(btn => {
             btn.onclick = () => {
                 const query = queryDisplay.innerText.replace(/"/g, '');
-                const finalUrl = btn.dataset.url + encodeURIComponent(query);
-                searchDialog.classList.remove('active');
-                setTimeout(() => {
-                    dialogOverlay.style.display = 'none';
-                    openInNewTab(finalUrl);
-                }, 200);
+                openInNewTab(btn.dataset.url + encodeURIComponent(query));
             };
         });
 
         clearBtn.onclick = () => { searchInput.value = ''; renderInitialSuggestions(); searchInput.focus(); };
         document.onclick = (e) => { if (!e.target.closest('.search-container')) suggestionsBox.style.display = 'none'; };
-        document.addEventListener('keydown', (e) => {
-            if (e.key === '/' && document.activeElement !== searchInput) { e.preventDefault(); searchInput.focus(); }
-        });
     </script>
 </body>
 </html>
