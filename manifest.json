@@ -1,15 +1,15 @@
 {
-"name": "Siêu Thanh Search Hub",
+"name": "Search Hub",
 "short_name": "Search Hub",
 "description": "Hệ thống tìm kiếm đa năng tối ưu cho OPPO A6x",
-"start_url": "search_hub.html",
+"start_url": "search.html",
 "display": "standalone",
 "background_color": "#08090a",
 "theme_color": "#a1c9ff",
 "orientation": "portrait",
 "icons": [
 {
-"src": "https://www.google.com/search?q=https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsoutlined/search/default/512.png",
+"src": "search.png",
 "sizes": "512x512",
 "type": "image/png",
 "purpose": "any maskable"
