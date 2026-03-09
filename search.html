@@ -26,7 +26,7 @@
             color: #e2e2e6;
             display: flex;
             flex-direction: column;
-            height: 100dvh; /* Dynamic viewport height cho mobile */
+            height: 100dvh;
             margin: 0;
             overflow: hidden;
             position: relative;
@@ -49,12 +49,11 @@
             100% { transform: translate(15%, 15%) rotate(180deg); }
         }
 
-        /* Bố cục chính: Đưa search xuống dưới cho dễ bấm tay cái */
         .main-content {
             flex: 1;
             display: flex;
             flex-direction: column;
-            justify-content: space-between; /* Đẩy clock lên trên, search xuống dưới */
+            justify-content: space-between;
             padding: 40px 20px 60px 20px;
             z-index: 10;
         }
@@ -66,7 +65,6 @@
             margin-top: 10vh;
         }
 
-        /* Search Bar Optimized */
         .search-container { width: 100%; max-width: 600px; align-self: center; position: relative; }
 
         .search-bar {
@@ -88,7 +86,6 @@
             font-size: 1.15rem; color: #fff; font-weight: 500;
         }
 
-        /* Suggestions: Hiện ngược lên trên hoặc tối ưu diện tích */
         .suggestions {
             position: absolute; bottom: calc(100% + 12px); left: 0; right: 0;
             background: rgba(28, 30, 32, 0.95); backdrop-filter: blur(30px);
@@ -111,27 +108,28 @@
         }
         @keyframes ripple { to { transform: scale(4); opacity: 0; } }
 
-        /* Dialog Optimized for Mobile */
+        /* Dialog Optimized for Mobile - 6 options grid */
         .dialog-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.9);
-            display: none; justify-content: center; align-items: flex-end; /* Hiện từ dưới lên */
+            display: none; justify-content: center; align-items: flex-end;
             z-index: 100; backdrop-filter: blur(10px);
         }
         .dialog {
             background: #1a1c1e; border-top: 1px solid var(--glass-border);
-            border-radius: 32px 32px 0 0; padding: 32px 24px 40px 24px; width: 100%;
+            border-radius: 32px 32px 0 0; padding: 28px 20px 40px 20px; width: 100%;
             transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
         }
         .dialog.active { transform: translateY(0); }
 
-        .search-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .search-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .option-btn {
-            padding: 20px 10px; border-radius: 20px; background: rgba(255,255,255,0.05);
-            display: flex; flex-direction: column; align-items: center; gap: 10px;
+            padding: 16px 8px; border-radius: 20px; background: rgba(255,255,255,0.05);
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            transition: all 0.2s;
         }
-        .option-btn:active { background: var(--md-sys-color-primary); color: #003258; }
+        .option-btn:active { background: var(--md-sys-color-primary); color: #003258; transform: scale(0.95); }
+        .option-btn .material-symbols-outlined { font-size: 28px; }
 
-        /* Loading */
         .loading-gif { height: 24px; filter: grayscale(1) brightness(1.5); display: none; }
         .transition-loader {
             position: fixed; inset: 0; background: #08090a; z-index: 1000;
@@ -157,7 +155,7 @@
                 <span class="material-symbols-outlined text-blue-300 transition-all" id="mainIcon">search</span>
                 <input type="text" class="search-input" id="searchInput" placeholder="Tìm kiếm hoặc URL..." inputmode="search" autocomplete="off">
                 <img src="https://tuanphong3108.github.io/md3-loading/Loading_Indicator.gif" alt="loading" class="loading-gif" id="loader">
-                <span class="material-symbols-outlined text-gray-500 p-1" id="clearBtn">close</span>
+                <!-- Nút close đã được loại bỏ theo yêu cầu -->
             </div>
         </div>
     </div>
@@ -167,23 +165,29 @@
         <div class="dialog" id="searchDialog">
             <div class="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6"></div>
             <h2 class="text-xl font-bold mb-1 text-center text-white">Chọn hành động</h2>
-            <p class="text-gray-500 text-xs mb-6 text-center truncate px-4" id="queryDisplay"></p>
+            <p class="text-gray-500 text-[10px] mb-6 text-center truncate px-4" id="queryDisplay"></p>
             
             <div class="search-options">
                 <button class="option-btn ripple" data-url="https://www.google.com/search?q=">
-                    <span class="material-symbols-outlined text-3xl">search</span><span class="text-sm font-bold">Google</span>
+                    <span class="material-symbols-outlined">search</span><span class="text-xs font-bold uppercase tracking-tight">Google</span>
                 </button>
                 <button class="option-btn ripple" data-url="https://www.youtube.com/results?search_query=">
-                    <span class="material-symbols-outlined text-3xl">play_circle</span><span class="text-sm font-bold">YouTube</span>
+                    <span class="material-symbols-outlined">play_circle</span><span class="text-xs font-bold uppercase tracking-tight">YouTube</span>
+                </button>
+                <button class="option-btn ripple" data-url="https://www.facebook.com/search/top/?q=">
+                    <span class="material-symbols-outlined">group</span><span class="text-xs font-bold uppercase tracking-tight">Facebook</span>
+                </button>
+                <button class="option-btn ripple" data-url="https://play.google.com/store/search?q=">
+                    <span class="material-symbols-outlined">shop_two</span><span class="text-xs font-bold uppercase tracking-tight">CH Play</span>
                 </button>
                 <button class="option-btn ripple" data-url="https://chatgpt.com/?q=">
-                    <span class="material-symbols-outlined text-3xl">auto_awesome</span><span class="text-sm font-bold">ChatGPT</span>
+                    <span class="material-symbols-outlined">auto_awesome</span><span class="text-xs font-bold uppercase tracking-tight">ChatGPT</span>
                 </button>
                 <button class="option-btn ripple" data-url="https://www.google.com/search?udm=50&q=">
-                    <span class="material-symbols-outlined text-3xl">psychology</span><span class="text-sm font-bold">AI Search</span>
+                    <span class="material-symbols-outlined">psychology</span><span class="text-xs font-bold uppercase tracking-tight">AI Search</span>
                 </button>
             </div>
-            <button class="mt-6 w-full py-4 rounded-2xl bg-white/5 text-gray-400 font-bold ripple" id="closeDialog">ĐÓNG</button>
+            <button class="mt-6 w-full py-4 rounded-2xl bg-white/5 text-gray-400 font-bold ripple" id="closeDialog">HỦY BỎ</button>
         </div>
     </div>
 
@@ -206,7 +210,6 @@
         const searchInput = document.getElementById('searchInput');
         const suggestionsBox = document.getElementById('suggestionsBox');
         const loader = document.getElementById('loader');
-        const clearBtn = document.getElementById('clearBtn');
         const mainIcon = document.getElementById('mainIcon');
         const dialogOverlay = document.getElementById('dialogOverlay');
         const searchDialog = document.getElementById('searchDialog');
@@ -346,7 +349,6 @@
             };
         });
 
-        clearBtn.onclick = () => { searchInput.value = ''; renderInitialSuggestions(); searchInput.focus(); };
         document.onclick = (e) => { if (!e.target.closest('.search-container')) suggestionsBox.style.display = 'none'; };
     </script>
 </body>
