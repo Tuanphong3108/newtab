@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Sầm Sơn Story - Phong</title>
+    
+    <!-- Preload để tránh lag nền -->
+    <link rel="preload" as="image" href="https://tuanphong3108.github.io/newtab/nen.jpeg">
+    
+    <!-- Google Sans Flex & Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    
+    <style>
+        :root {
+            --bg-dark: #000;
+            --accent: #1a73e8;
+            --font-main: 'Google Sans Flex', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-dark);
+            font-family: var(--font-main);
+        }
+
+        /* Thiết lập nền: Khớp chiều ngang và căn giữa */
+        .background {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            transform: translate(-50%, -50%);
+            background-image: url('https://tuanphong3108.github.io/newtab/nen.jpeg');
+            background-size: contain; /* Đảm bảo khớp chiều ngang màn hình */
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: opacity;
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, transparent 50%, rgba(0,0,0,0.4) 100%);
+            opacity: 0;
+            z-index: 0;
+            transition: opacity 1.5s ease;
+        }
+
+        /* Start Screen */
+        #start-screen {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-dark);
+            z-index: 100;
+            transition: opacity 0.5s ease;
+        }
+
+        .btn-start {
+            border: none;
+            background: var(--accent);
+            color: white;
+            padding: 18px 36px;
+            border-radius: 100px;
+            font-family: var(--font-main);
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 12px 30px rgba(26, 115, 232, 0.3);
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .btn-start:active { transform: scale(0.92); }
+
+        .ripple {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple-effect 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple-effect {
+            to { transform: scale(4); opacity: 0; }
+        }
+
+        /* Main UI */
+        #main-ui {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: 18vh;
+            visibility: hidden;
+        }
+
+        .maps-icon {
+            width: 65px; 
+            height: auto;
+            opacity: 0;
+            transform: translateY(40px) scale(0.8);
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+            will-change: transform, opacity;
+            transition: 
+                transform 1.2s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 1.2s ease;
+        }
+
+        .status-text {
+            margin-top: 25px;
+            color: #fff;
+            font-size: 1.8rem; 
+            font-weight: 900;
+            text-align: center;
+            text-transform: uppercase;
+            text-shadow: 0 4px 15px rgba(0,0,0,1);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            max-width: 85%;
+        }
+
+        .word { display: inline-flex; }
+
+        .char {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(20px);
+            will-change: transform, opacity;
+        }
+
+        /* Classes kích hoạt */
+        .show-element { opacity: 1 !important; }
+        .icon-active {
+            opacity: 1 !important;
+            transform: translateY(0) scale(1) !important;
+        }
+        
+        @keyframes charIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="start-screen">
+        <button class="btn-start" onclick="handleStory(event)">
+            <span class="material-symbols-outlined">fullscreen</span>
+            Bắt đầu
+        </button>
+    </div>
+
+    <div class="background" id="bg"></div>
+    <div class="overlay" id="overlay"></div>
+
+    <main id="main-ui">
+        <img id="icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Google_Maps_icon_%282026%29.svg/3840px-Google_Maps_icon_%282026%29.svg.png" class="maps-icon">
+        <div class="status-text" id="text-container"></div>
+    </main>
+
+    <script>
+        const text = "ĐÃ ĐẾN SẦM SƠN, THANH HÓA 🗿";
+        const textContainer = document.getElementById('text-container');
+
+        function setupText() {
+            text.split(' ').forEach(word => {
+                const wSpan = document.createElement('span');
+                wSpan.className = 'word';
+                [...word].forEach(c => {
+                    const cSpan = document.createElement('span');
+                    cSpan.className = 'char';
+                    cSpan.textContent = c;
+                    wSpan.appendChild(cSpan);
+                });
+                textContainer.appendChild(wSpan);
+                textContainer.appendChild(document.createTextNode('\u00A0'));
+            });
+        }
+
+        async function handleStory(event) {
+            const btn = event.currentTarget;
+            const rip = document.createElement("span");
+            const r = btn.getBoundingClientRect();
+            rip.style.width = rip.style.height = `${Math.max(r.width, r.height)}px`;
+            rip.style.left = `${event.clientX - r.left - Math.max(r.width, r.height)/2}px`;
+            rip.style.top = `${event.clientY - r.top - Math.max(r.width, r.height)/2}px`;
+            rip.classList.add("ripple");
+            btn.appendChild(rip);
+
+            try {
+                const el = document.documentElement;
+                if (el.requestFullscreen) await el.requestFullscreen();
+                else if (el.webkitRequestFullscreen) await el.webkitRequestFullscreen();
+            } catch (e) { console.log("Fullscreen Error"); }
+
+            setTimeout(() => {
+                document.getElementById('start-screen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('start-screen').style.display = 'none';
+                    // Đợi 5s đúng ý bro để mất popup Chrome
+                    setTimeout(animateStory, 5000);
+                }, 500);
+            }, 300);
+        }
+
+        function animateStory() {
+            const main = document.getElementById('main-ui');
+            const bg = document.getElementById('bg');
+            const ov = document.getElementById('overlay');
+            const icon = document.getElementById('icon');
+            const chars = document.querySelectorAll('.char');
+
+            main.style.visibility = 'visible';
+            icon.classList.add('icon-active');
+
+            chars.forEach((c, i) => {
+                setTimeout(() => {
+                    c.style.animation = "charIn 0.5s forwards cubic-bezier(0.34, 1.56, 0.64, 1)";
+                }, 800 + (i * 45));
+            });
+
+            setTimeout(() => {
+                bg.classList.add('show-element');
+                ov.classList.add('show-element');
+            }, 2300);
+        }
+
+        window.onload = setupText;
+    </script>
+</body>
+</html>
+
