@@ -1080,5 +1080,21 @@ function openLink(url){
 }
 </script>
 
+  <script>
+function openLink(url){
+  const params = new URLSearchParams(location.search);
+  const isExtension = params.get("extension") === "true";
+
+  if(isExtension){
+    window.open(url, "_blank");
+
+    // gửi tín hiệu cho extension đóng tab
+    window.parent.postMessage("CLOSE_NEW_TAB", "*");
+  }else{
+    window.location.href = url;
+  }
+}
+</script>
+
 </body>
 </html>
