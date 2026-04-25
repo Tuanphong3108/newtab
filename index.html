@@ -22,7 +22,10 @@
       margin: 0;
       padding: 0;
       font-family: 'Minecraft', monospace;
-      display: block;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       height: 100vh;
       user-select: none;
       position: relative;
@@ -280,7 +283,29 @@
   bottom: 20px;
   left: 20px;
 
-  display: flex; /* đổi luôn cho đồng bộ */
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 10px 14px;
+  border-radius: 14px;
+
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  text-decoration: none !important;
+
+  font-size: 13px;
+  font-family: inherit;
+
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+
+  z-index: 5;
+}
+
+
+
+  display: flex;
   align-items: center;
   gap: 8px;
 
@@ -290,15 +315,9 @@
   background: rgba(0, 0, 0, 0.55);
   color: #fff;
   text-decoration: none;
-
   font-size: 13px;
-  font-family: inherit;
 
   backdrop-filter: blur(10px);
-  cursor: pointer;
-
-  z-index: 5;
-
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -557,108 +576,15 @@ body.paused * {
 }
 
 
-    /* ===== INSTALL EXTENSION BUTTON ===== */
-.install-btn{
-  position:fixed;
-  top:20px;
-  right:20px;
-  left:auto;
-
-  display:flex;
-  align-items:center;
-  gap:8px;
-
-  padding:10px 14px;
-  border-radius:14px;
-
-  background:rgba(0,0,0,0.55);
-  color:#fff;
-  text-decoration:none;
-  font-size:13px;
-
-  z-index:9999;
-  backdrop-filter:blur(10px);
-
-  transition:
-    transform .2s ease,
-    box-shadow .2s ease,
-    opacity .25s ease;
-}
-
-/* hover nâng nhẹ */
-.install-btn:hover{
-  transform:translateY(-3px);
-  box-shadow:0 10px 24px rgba(0,0,0,0.35);
-}
-
-/* icon */
-.install-btn .material-symbols-outlined{
-  font-size:20px;
-}
-
-/* ẩn khi đã cài extension */
-.install-btn.hidden{
-  opacity:0;
-  pointer-events:none;
-}
-
-/* optional: pulse nhẹ để hút mắt */
-@keyframes installPulse{
-  0%{ box-shadow:0 0 0 0 rgba(138,180,255,0.4); }
-  70%{ box-shadow:0 0 0 10px rgba(138,180,255,0); }
-  100%{ box-shadow:0 0 0 0 rgba(138,180,255,0); }
-}
-
-.install-btn.attention{
-  animation:installPulse 2s infinite;
-}
-
-    .center-ui {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-}
-    
   </style>
 </head>
 <body>
   <div id="bg-base"></div>
   <div id="bg-fade"></div>
-<div class="center-ui">
-
   <div id="clock">00:00:00</div>
   <div id="date">Loading...</div>
-
-  <div class="xp-bar">
-    <div class="xp-fill" id="xp-fill"></div>
-  </div>
-
+  <div class="xp-bar"><div class="xp-fill" id="xp-fill"></div></div>
   <div class="quote" id="quote"></div>
-
-<form id="google-search">
-  <input
-    id="search-input"
-    type="text"
-    placeholder="Search on Google"
-    autocomplete="off"
-  />
-
-  <!-- nút search thường -->
-  <button type="submit" id="search-btn" title="Search">
-    <span class="material-symbols-outlined">search</span>
-  </button>
-
-  <!-- 🖼️ nút image search (Google Lens) -->
-  <button type="button" id="image-search-btn" title="Search by image">
-    <span class="material-symbols-outlined">image_search</span>
-  </button>
-
-  <ul id="suggestions"></ul>
-</form>
-
-</div>
   <!-- ===== APPS BUTTON ===== -->
 <button id="apps-btn" title="Apps">
   <span class="material-symbols-outlined">apps</span>
@@ -692,12 +618,16 @@ body.paused * {
 
 
 <a
-  href="#"
-  onclick="openLink('https://news.google.com'); return false;"
+  href="https://news.google.com"
+  rel="noopener noreferrer"
   class="google-news-btn"
 >
-  <span class="material-symbols-outlined news-icon">newsmode</span>
-  <span class="news-text">Đọc báo</span>
+  <span class="material-symbols-outlined news-icon">
+    newsmode
+  </span>
+  <span class="news-text">
+    Đọc báo trên Google News
+  </span>
 </a>
 
 <form id="google-search">
@@ -722,21 +652,13 @@ body.paused * {
 </form>
 
 <a
-  href="#"
-  onclick="openLink('https://github.com/Tuanphong3108/newtab-extension'); return false;"
-  id="install-btn"
-  class="install-btn"
->
-  <span class="material-symbols-outlined">extension</span>
-  <span class="label">Cài Extension</span>
-</a>
-
-<a
-  href="#"
-  onclick="openLink('https://tuanphong3108.github.io/weather'); return false;"
+  href="https://tuanphong3108.github.io/weather"
   class="weather-btn"
+  title="Thời tiết"
 >
-  <span class="material-symbols-outlined">partly_cloudy_day</span>
+  <span class="material-symbols-outlined">
+    partly_cloudy_day
+  </span>
   <span class="label">Thời tiết</span>
 </a>
 
@@ -885,9 +807,8 @@ form.addEventListener("submit", e => {
   e.preventDefault();
   const q = input.value.trim();
   if (q) {
-openLink(
-  "https://www.google.com/search?q=" + encodeURIComponent(q)
-);
+    window.location.href =
+      "https://www.google.com/search?q=" + encodeURIComponent(q);
   }
 });
 
@@ -930,7 +851,7 @@ input.addEventListener("input", () => {
 
 /* click image search → Google Lens */
 imageBtn.addEventListener("click", () => {
-  openLink("https://lens.google.com");
+  window.location.href = "https://lens.google.com";
 });
 
 /* click ngoài → đóng suggest */
@@ -1079,35 +1000,5 @@ popup.onclick = (e)=>{
 };
 </script>
 
-  <script>
-const installBtn = document.getElementById("install-btn");
-const params = new URLSearchParams(location.search);
-
-/* nếu đang chạy trong extension */
-if(params.get("extension") === "true"){
-  installBtn.classList.add("hidden");
-}else{
-  /* nếu là web thường → bật hiệu ứng hút mắt */
-  installBtn.classList.add("attention");
-}
-</script>
-
-  <script>
-const params = new URLSearchParams(location.search);
-const isExtension = params.get("extension") === "true";
-
-/* ===== Hàm mở link chuẩn ===== */
-function openLink(url){
-  const isExtension = new URLSearchParams(location.search).get("extension") === "true";
-
-  if(isExtension){
-    window.open(url, "_blank");
-    window.parent.postMessage("CLOSE_NEW_TAB", "*"); // chuẩn iframe
-  }else{
-    window.location.href = url;
-  }
-}
-
-  </script>
 </body>
 </html>
