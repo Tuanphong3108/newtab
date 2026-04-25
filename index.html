@@ -1046,12 +1046,9 @@ popup.onclick = (e)=>{
 
 function openAndClose(url) {
     if (isExtensionMode) {
-        window.open(url, "_blank"); // Mở tab mới chứa kết quả tìm kiếm
-        
-        // Gửi lệnh đóng tab hiện tại cho extension background
-        if (typeof chrome !== 'undefined' && chrome.runtime) {
-            chrome.runtime.sendMessage({ action: "CLOSE_TAB" });
-        }
+        window.open(url, "_blank"); // Mở tab mới
+        // Hét lên với thằng cha (newtab.html của extension)
+        window.parent.postMessage("CLOSE_NEW_TAB", "*");
     } else {
         window.location.href = url;
     }
