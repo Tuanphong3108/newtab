@@ -604,6 +604,41 @@ body.paused * {
   display: none;
   pointer-events: none;
 }
+
+#ai-btn {
+  position: absolute;
+  top: 50%;
+  right: 68px;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #bb86fc;
+  cursor: pointer;
+  padding: 4px;
+  
+  /* Mặc định là không tồn tại trên đời */
+  display: none; 
+}
+
+/* Chỉ khi có class này mới được hiện hình */
+#ai-btn.extension-only {
+  display: block;
+}
+
+#ai-btn.show {
+  display: block;
+}
+
+#ai-btn .material-symbols-outlined {
+  font-size: 22px;
+  transition: transform 0.3s ease;
+}
+
+#ai-btn:hover .material-symbols-outlined {
+  transform: rotate(20deg) scale(1.2);
+  font-variation-settings: 'FILL' 1;
+}
+    
   </style>
 </head>
 <body>
@@ -673,6 +708,10 @@ body.paused * {
     autocomplete="off"
   />
 
+  <button type="button" id="ai-btn" title="Chế độ AI">
+  <span class="material-symbols-outlined">auto_awesome</span>
+</button>
+  
   <!-- nút search thường -->
   <button type="submit" id="search-btn" title="Search">
     <span class="material-symbols-outlined">search</span>
@@ -1075,6 +1114,25 @@ function openAndClose(url) {
       });
   });
 </script>
+
+  <script>
+   const aiBtn = document.getElementById("ai-btn");
+
+// Đoạn logic kiểm tra extension có sẵn của bro
+if (isExtensionMode) {
+    // 1. Show cái nút AI ra
+    if (aiBtn) {
+        aiBtn.classList.add("extension-only");
+    }
+
+    // 2. Bắt sự kiện click
+    aiBtn.addEventListener("click", () => {
+        window.parent.postMessage("OPEN_AI_MODE", "*");
+    });
+    
+    // ... các logic extension khác (ẩn nút Cài Extension, v.v.)
+}
+  </script>
 
 </body>
 </html>
