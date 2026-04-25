@@ -22,10 +22,7 @@
       margin: 0;
       padding: 0;
       font-family: 'Minecraft', monospace;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      display: block;
       height: 100vh;
       user-select: none;
       position: relative;
@@ -283,29 +280,7 @@
   bottom: 20px;
   left: 20px;
 
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-
-  padding: 10px 14px;
-  border-radius: 14px;
-
-  background: rgba(0, 0, 0, 0.55);
-  color: #fff;
-  text-decoration: none !important;
-
-  font-size: 13px;
-  font-family: inherit;
-
-  backdrop-filter: blur(10px);
-  cursor: pointer;
-
-  z-index: 5;
-}
-
-
-
-  display: flex;
+  display: flex; /* đổi luôn cho đồng bộ */
   align-items: center;
   gap: 8px;
 
@@ -315,9 +290,15 @@
   background: rgba(0, 0, 0, 0.55);
   color: #fff;
   text-decoration: none;
+
   font-size: 13px;
+  font-family: inherit;
 
   backdrop-filter: blur(10px);
+  cursor: pointer;
+
+  z-index: 5;
+
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -631,16 +612,53 @@ body.paused * {
 .install-btn.attention{
   animation:installPulse 2s infinite;
 }
+
+    .center-ui {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
     
   </style>
 </head>
 <body>
   <div id="bg-base"></div>
   <div id="bg-fade"></div>
+<div class="center-ui">
+
   <div id="clock">00:00:00</div>
   <div id="date">Loading...</div>
-  <div class="xp-bar"><div class="xp-fill" id="xp-fill"></div></div>
+
+  <div class="xp-bar">
+    <div class="xp-fill" id="xp-fill"></div>
+  </div>
+
   <div class="quote" id="quote"></div>
+
+<form id="google-search">
+  <input
+    id="search-input"
+    type="text"
+    placeholder="Search on Google"
+    autocomplete="off"
+  />
+
+  <!-- nút search thường -->
+  <button type="submit" id="search-btn" title="Search">
+    <span class="material-symbols-outlined">search</span>
+  </button>
+
+  <!-- 🖼️ nút image search (Google Lens) -->
+  <button type="button" id="image-search-btn" title="Search by image">
+    <span class="material-symbols-outlined">image_search</span>
+  </button>
+
+  <ul id="suggestions"></ul>
+</form>
+
+</div>
   <!-- ===== APPS BUTTON ===== -->
 <button id="apps-btn" title="Apps">
   <span class="material-symbols-outlined">apps</span>
@@ -1080,28 +1098,16 @@ const isExtension = params.get("extension") === "true";
 
 /* ===== Hàm mở link chuẩn ===== */
 function openLink(url){
+  const isExtension = new URLSearchParams(location.search).get("extension") === "true";
+
   if(isExtension){
     window.open(url, "_blank");
-    window.close(); // đóng tab newtab
+    window.parent.postMessage("CLOSE_NEW_TAB", "*"); // chuẩn iframe
   }else{
     window.location.href = url;
   }
 }
-</script>
 
-  <script>
-function openLink(url){
-  const params = new URLSearchParams(location.search);
-  const isExtension = params.get("extension") === "true";
-
-  if(isExtension){
-    window.open(url, "_blank");
-    window.parent.postMessage("CLOSE_NEW_TAB", "*");
-  }else{
-    window.location.href = url;
-  }
-}
-</script>
-
+  </script>
 </body>
 </html>
