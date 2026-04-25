@@ -1044,14 +1044,18 @@ popup.onclick = (e)=>{
       installBtn.classList.add("hidden-ext");
   }
 
-  function openAndClose(url) {
-      if (isExtensionMode) {
-          window.open(url, "_blank");
-          window.postMessage("CLOSE_NEW_TAB", "*");
-      } else {
-          window.location.href = url;
-      }
-  }
+function openAndClose(url) {
+    if (isExtensionMode) {
+        window.open(url, "_blank"); // Mở tab mới chứa kết quả tìm kiếm
+        
+        // Gửi lệnh đóng tab hiện tại cho extension background
+        if (typeof chrome !== 'undefined' && chrome.runtime) {
+            chrome.runtime.sendMessage({ action: "CLOSE_TAB" });
+        }
+    } else {
+        window.location.href = url;
+    }
+}
 
   // Gắn lại sự kiện cho form search (biến 'form' và 'input' đã có ở script trên)
   if (typeof form !== 'undefined') {
