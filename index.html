@@ -678,6 +678,9 @@ body.paused * {
   onclick="openLink('https://news.google.com'); return false;"
   class="google-news-btn"
 >
+  <span class="material-symbols-outlined news-icon">newsmode</span>
+  <span class="news-text">Đọc báo</span>
+</a>
 
 <form id="google-search">
   <input
@@ -706,12 +709,18 @@ body.paused * {
   id="install-btn"
   class="install-btn"
 >
+  <span class="material-symbols-outlined">extension</span>
+  <span class="label">Cài Extension</span>
+</a>
 
 <a
   href="#"
   onclick="openLink('https://tuanphong3108.github.io/weather'); return false;"
   class="weather-btn"
 >
+  <span class="material-symbols-outlined">partly_cloudy_day</span>
+  <span class="label">Thời tiết</span>
+</a>
 
 
  <audio id="tick-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_62f3d17051.mp3?filename=click-124467.mp3"></audio>
@@ -1087,8 +1096,6 @@ function openLink(url){
 
   if(isExtension){
     window.open(url, "_blank");
-
-    // gửi tín hiệu cho extension đóng tab
     window.parent.postMessage("CLOSE_NEW_TAB", "*");
   }else{
     window.location.href = url;
