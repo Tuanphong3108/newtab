@@ -576,6 +576,62 @@ body.paused * {
 }
 
 
+    /* ===== INSTALL EXTENSION BUTTON ===== */
+.install-btn{
+  position:fixed;
+  top:20px;
+  right:20px;
+  left:auto;
+
+  display:flex;
+  align-items:center;
+  gap:8px;
+
+  padding:10px 14px;
+  border-radius:14px;
+
+  background:rgba(0,0,0,0.55);
+  color:#fff;
+  text-decoration:none;
+  font-size:13px;
+
+  z-index:9999;
+  backdrop-filter:blur(10px);
+
+  transition:
+    transform .2s ease,
+    box-shadow .2s ease,
+    opacity .25s ease;
+}
+
+/* hover nâng nhẹ */
+.install-btn:hover{
+  transform:translateY(-3px);
+  box-shadow:0 10px 24px rgba(0,0,0,0.35);
+}
+
+/* icon */
+.install-btn .material-symbols-outlined{
+  font-size:20px;
+}
+
+/* ẩn khi đã cài extension */
+.install-btn.hidden{
+  opacity:0;
+  pointer-events:none;
+}
+
+/* optional: pulse nhẹ để hút mắt */
+@keyframes installPulse{
+  0%{ box-shadow:0 0 0 0 rgba(138,180,255,0.4); }
+  70%{ box-shadow:0 0 0 10px rgba(138,180,255,0); }
+  100%{ box-shadow:0 0 0 0 rgba(138,180,255,0); }
+}
+
+.install-btn.attention{
+  animation:installPulse 2s infinite;
+}
+    
   </style>
 </head>
 <body>
@@ -618,17 +674,10 @@ body.paused * {
 
 
 <a
-  href="https://news.google.com"
-  rel="noopener noreferrer"
+  href="#"
+  onclick="openLink('https://news.google.com'); return false;"
   class="google-news-btn"
 >
-  <span class="material-symbols-outlined news-icon">
-    newsmode
-  </span>
-  <span class="news-text">
-    Đọc báo trên Google News
-  </span>
-</a>
 
 <form id="google-search">
   <input
@@ -652,15 +701,17 @@ body.paused * {
 </form>
 
 <a
-  href="https://tuanphong3108.github.io/weather"
-  class="weather-btn"
-  title="Thời tiết"
+  href="#"
+  onclick="openLink('https://github.com/Tuanphong3108/newtab-extension'); return false;"
+  id="install-btn"
+  class="install-btn"
 >
-  <span class="material-symbols-outlined">
-    partly_cloudy_day
-  </span>
-  <span class="label">Thời tiết</span>
-</a>
+
+<a
+  href="#"
+  onclick="openLink('https://tuanphong3108.github.io/weather'); return false;"
+  class="weather-btn"
+>
 
 
  <audio id="tick-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_62f3d17051.mp3?filename=click-124467.mp3"></audio>
@@ -807,8 +858,9 @@ form.addEventListener("submit", e => {
   e.preventDefault();
   const q = input.value.trim();
   if (q) {
-    window.location.href =
-      "https://www.google.com/search?q=" + encodeURIComponent(q);
+openLink(
+  "https://www.google.com/search?q=" + encodeURIComponent(q)
+);
   }
 });
 
@@ -851,7 +903,7 @@ input.addEventListener("input", () => {
 
 /* click image search → Google Lens */
 imageBtn.addEventListener("click", () => {
-  window.location.href = "https://lens.google.com";
+  openLink("https://lens.google.com");
 });
 
 /* click ngoài → đóng suggest */
@@ -998,6 +1050,34 @@ popup.onclick = (e)=>{
     popup.classList.add("hidden");
   }
 };
+</script>
+
+  <script>
+const installBtn = document.getElementById("install-btn");
+const params = new URLSearchParams(location.search);
+
+/* nếu đang chạy trong extension */
+if(params.get("extension") === "true"){
+  installBtn.classList.add("hidden");
+}else{
+  /* nếu là web thường → bật hiệu ứng hút mắt */
+  installBtn.classList.add("attention");
+}
+</script>
+
+  <script>
+const params = new URLSearchParams(location.search);
+const isExtension = params.get("extension") === "true";
+
+/* ===== Hàm mở link chuẩn ===== */
+function openLink(url){
+  if(isExtension){
+    window.open(url, "_blank");
+    window.close(); // đóng tab newtab
+  }else{
+    window.location.href = url;
+  }
+}
 </script>
 
 </body>
