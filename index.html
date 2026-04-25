@@ -1116,7 +1116,7 @@ function openAndClose(url) {
 </script>
 
   <script>
-   const aiBtn = document.getElementById("ai-btn");
+const aiBtn = document.getElementById("ai-btn");
 
 // Đoạn logic kiểm tra extension có sẵn của bro
 if (isExtensionMode) {
@@ -1127,10 +1127,14 @@ if (isExtensionMode) {
 
     // 2. Bắt sự kiện click
     aiBtn.addEventListener("click", () => {
+        // Gọi background mở chế độ AI
         window.parent.postMessage("OPEN_AI_MODE", "*");
+        
+        // "Đòn kết liễu": Tự hủy tab hiện tại sau 100ms
+        setTimeout(() => {
+            window.parent.postMessage("CLOSE_NEW_TAB", "*");
+        }, 100);
     });
-    
-    // ... các logic extension khác (ẩn nút Cài Extension, v.v.)
 }
   </script>
 
