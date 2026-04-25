@@ -575,7 +575,35 @@ body.paused * {
   text-decoration:underline;
 }
 
+/* Nút Cài Extension ở góc trên bên trái */
+#install-extension-btn {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  text-decoration: none;
+  font-size: 13px;
+  z-index: 10000;
+  backdrop-filter: blur(10px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
 
+#install-extension-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+/* Ẩn hoàn toàn khi đã cài extension */
+#install-extension-btn.hidden-ext {
+  display: none;
+  pointer-events: none;
+}
   </style>
 </head>
 <body>
@@ -602,6 +630,13 @@ body.paused * {
 
   </div>
 </div>
+
+  <a href="https://github.com/Tuanphong3108/newtab-extension/" 
+   id="install-extension-btn" 
+   target="_blank">
+  <span class="material-symbols-outlined">extension</span>
+  <span class="label">Cài Extension</span>
+</a>
 
 <!-- ===== APPS DIALOG ===== -->
 <div id="apps-overlay">
@@ -998,6 +1033,46 @@ popup.onclick = (e)=>{
     popup.classList.add("hidden");
   }
 };
+</script>
+
+ <script>
+  // Dùng luôn params đã khai báo ở đoạn script phía trên
+  const isExtensionMode = params.get("extension") === "true";
+  const installBtn = document.getElementById("install-extension-btn");
+
+  if (isExtensionMode && installBtn) {
+      installBtn.classList.add("hidden-ext");
+  }
+
+  function openAndClose(url) {
+      if (isExtensionMode) {
+          window.open(url, "_blank");
+          window.postMessage("CLOSE_NEW_TAB", "*");
+      } else {
+          window.location.href = url;
+      }
+  }
+
+  // Gắn lại sự kiện cho form search (biến 'form' và 'input' đã có ở script trên)
+  if (typeof form !== 'undefined') {
+      form.addEventListener("submit", e => {
+          e.preventDefault();
+          const q = input.value.trim();
+          if (q) {
+              openAndClose("https://www.google.com/search?q=" + encodeURIComponent(q));
+          }
+      });
+  }
+
+  // Gắn sự kiện cho các nút News và Weather
+  document.querySelectorAll(".google-news-btn, .weather-btn").forEach(btn => {
+      btn.addEventListener("click", e => {
+          if (isExtensionMode) {
+              e.preventDefault();
+              openAndClose(btn.href);
+          }
+      });
+  });
 </script>
 
 </body>
