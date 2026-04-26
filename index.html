@@ -1133,5 +1133,20 @@ if (isExtensionMode) {
 }
   </script>
 
+  <script>
+    // 1. Lấy giá trị từ URL hiện tại
+const params = new URLSearchParams(location.search);
+
+// 2. "Xóa dấu vết" trên thanh URL mà không làm mất tính năng
+if (isExtensionMode) {
+    // Tạo một URL mới bằng cách xóa param 'extension'
+    const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+    
+    // Đẩy URL mới lên thanh địa chỉ nhưng vẫn giữ nguyên trạng thái trang web
+    window.history.replaceState({ path: newUrl }, '', newUrl);
+    
+}
+  </script>
+
 </body>
 </html>
