@@ -788,6 +788,7 @@ body.paused * {
  <audio id="tick-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_62f3d17051.mp3?filename=click-124467.mp3"></audio>
 
   <script>
+    const params = new URLSearchParams(location.search);
     const isExtensionMode = params.get("extension") === "true";
     const clock = document.getElementById("clock");
     const dateEl = document.getElementById("date");
@@ -1079,7 +1080,7 @@ const popup = document.getElementById("promo-popup");
 const closeBtn = document.getElementById("promo-close");
 const content = document.getElementById("promo-content");
 
-const params = new URLSearchParams(location.search);
+
 
 const installed = localStorage.getItem("newtab_extension_installed");
 const popupClosed = localStorage.getItem("promo_closed");
@@ -1127,8 +1128,6 @@ popup.onclick = (e)=>{
   /**
    * PHẦN 1: KHỞI TẠO PARAMS
    */
-  const params = new URLSearchParams(location.search);
-  
   
   // Đã bỏ đoạn xóa URL theo yêu cầu của bro. 
   // URL giờ sẽ giữ nguyên ?extension=true để bro dễ theo dõi.
