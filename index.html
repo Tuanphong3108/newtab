@@ -1122,19 +1122,15 @@ popup.onclick = (e)=>{
 };
 </script>
 
- <script>
+<script>
   /**
-   * PHẦN 1: KHỞI TẠO VÀ XỬ LÝ URL
+   * PHẦN 1: KHỞI TẠO PARAMS
    */
   const params = new URLSearchParams(location.search);
   const isExtensionMode = params.get("extension") === "true";
   
-  // Xóa dấu vết ?extension=true trên thanh địa chỉ nhưng vẫn giữ logic bên dưới
-  if (isExtensionMode) {
-      const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-      window.history.replaceState({ path: newUrl }, '', newUrl);
-      console.log("Extension Mode Activated & Stealth URL enabled. 🚀");
-  }
+  // Đã bỏ đoạn xóa URL theo yêu cầu của bro. 
+  // URL giờ sẽ giữ nguyên ?extension=true để bro dễ theo dõi.
 
   /**
    * PHẦN 2: KHAI BÁO CÁC PHẦN TỬ UI
@@ -1144,47 +1140,46 @@ popup.onclick = (e)=>{
   const originalBtn = document.getElementById("original-ntp-btn");
 
   /**
-   * PHẦN 3: HÀM ĐIỀU HƯỚNG (Dành cho Search/News/Weather)
+   * PHẦN 3: HÀM ĐIỀU HƯỚNG (Cho Search/News/Weather)
    */
   function openAndClose(url) {
       if (isExtensionMode) {
-          window.open(url, "_blank"); // Mở kết quả ở tab mới
-          window.parent.postMessage("CLOSE_NEW_TAB", "*"); // Đóng cái New Tab hiện tại
+          window.open(url, "_blank");
+          window.parent.postMessage("CLOSE_NEW_TAB", "*");
       } else {
           window.location.href = url;
       }
   }
 
   /**
-   * PHẦN 4: LOGIC EXTENSION-ONLY (Chỉ chạy khi isExtensionMode = true)
+   * PHẦN 4: LOGIC EXTENSION-ONLY
    */
   if (isExtensionMode) {
-      // Ẩn nút cài đặt extension vì đang dùng rồi
+      // Ẩn nút cài đặt
       if (installBtn) installBtn.classList.add("hidden-ext");
 
-      // Xử lý nút AI (Ghi đè tab)
+      // Hiện và xử lý nút AI
       if (aiBtn) {
           aiBtn.classList.add("extension-only");
           aiBtn.addEventListener("click", () => {
-              console.log("Chuyển hướng sang Chế độ AI...");
+              console.log("Chuyển sang AI Mode...");
               window.parent.postMessage("OPEN_AI_MODE", "*");
           });
       }
 
-      // Xử lý nút Trang gốc (Ghi đè tab)
+      // Hiện và xử lý nút Trang gốc
       if (originalBtn) {
           originalBtn.classList.add("show-ext");
           originalBtn.addEventListener("click", () => {
-              console.log("Quay về trang gốc Chrome...");
+              console.log("Quay về trang gốc...");
               window.parent.postMessage("OPEN_ORIGINAL_NTP", "*");
           });
       }
   }
 
   /**
-   * PHẦN 5: GẮN SỰ KIỆN CHO FORM VÀ CÁC NÚT CHỨC NĂNG
+   * PHẦN 5: GẮN SỰ KIỆN
    */
-  // Sự kiện Search Form
   if (typeof form !== 'undefined') {
       form.addEventListener("submit", e => {
           e.preventDefault();
@@ -1195,7 +1190,6 @@ popup.onclick = (e)=>{
       });
   }
 
-  // Sự kiện cho News và Weather
   document.querySelectorAll(".google-news-btn, .weather-btn").forEach(btn => {
       btn.addEventListener("click", e => {
           if (isExtensionMode) {
