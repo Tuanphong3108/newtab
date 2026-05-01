@@ -788,6 +788,7 @@ body.paused * {
  <audio id="tick-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_62f3d17051.mp3?filename=click-124467.mp3"></audio>
 
   <script>
+    const isExtensionMode = params.get("extension") === "true";
     const clock = document.getElementById("clock");
     const dateEl = document.getElementById("date");
     const tick = document.getElementById("tick-sound");
@@ -1127,7 +1128,7 @@ popup.onclick = (e)=>{
    * PHẦN 1: KHỞI TẠO PARAMS
    */
   const params = new URLSearchParams(location.search);
-  const isExtensionMode = params.get("extension") === "true";
+  
   
   // Đã bỏ đoạn xóa URL theo yêu cầu của bro. 
   // URL giờ sẽ giữ nguyên ?extension=true để bro dễ theo dõi.
