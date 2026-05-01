@@ -639,44 +639,49 @@ body.paused * {
   font-variation-settings: 'FILL' 1;
 }
 
-    #original-ntp-btn {
+ #original-ntp-btn {
   position: fixed;
-  top: 60px; /* Đặt dưới nút Install Extension (16px) một chút để không bị đè */
-  left: 16px;
+  top: 16px; /* Sát mép trên */
+  left: 16px; /* Sát mép trái */
 
-  display: none; /* Mặc định ẩn */
+  display: none; /* Mặc định ẩn, sẽ hiện qua JS */
   align-items: center;
   gap: 8px;
 
-  padding: 10px 14px;
-  border-radius: 14px;
+  padding: 10px 16px;
+  border-radius: 16px; /* MD3 Style */
 
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(28, 27, 31, 0.5); /* Màu tối trung tính */
   color: #fff;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   cursor: pointer;
   font-size: 13px;
-  font-family: inherit;
+  font-family: 'Google Sans Flex', sans-serif;
 
-  backdrop-filter: blur(10px);
-  z-index: 10000;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 9999;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Overshoot nhẹ */
 }
 
+/* Khi ở trong Extension Mode thì mới hiện */
 #original-ntp-btn.show-ext {
-  display: flex; /* Hiện khi ở Extension mode */
+  display: flex;
 }
 
 #original-ntp-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-#original-ntp-btn .material-symbols-outlined {
-  font-size: 20px;
+#original-ntp-btn:hover .material-symbols-outlined {
+  font-variation-settings: 'FILL' 1; /* Hiệu ứng Fill khi hover như bro yêu cầu */
 }
-    
+
+#original-ntp-btn .label {
+  font-weight: 500;
+}
   </style>
 </head>
 <body>
