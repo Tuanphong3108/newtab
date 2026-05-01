@@ -638,6 +638,44 @@ body.paused * {
   transform: rotate(20deg) scale(1.2);
   font-variation-settings: 'FILL' 1;
 }
+
+    #original-ntp-btn {
+  position: fixed;
+  top: 60px; /* Đặt dưới nút Install Extension (16px) một chút để không bị đè */
+  left: 16px;
+
+  display: none; /* Mặc định ẩn */
+  align-items: center;
+  gap: 8px;
+
+  padding: 10px 14px;
+  border-radius: 14px;
+
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: inherit;
+
+  backdrop-filter: blur(10px);
+  z-index: 10000;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#original-ntp-btn.show-ext {
+  display: flex; /* Hiện khi ở Extension mode */
+}
+
+#original-ntp-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+#original-ntp-btn .material-symbols-outlined {
+  font-size: 20px;
+}
     
   </style>
 </head>
@@ -735,6 +773,11 @@ body.paused * {
   </span>
   <span class="label">Thời tiết</span>
 </a>
+
+<button id="original-ntp-btn" class="extension-only" title="Mở trang thẻ mới gốc">
+  <span class="material-symbols-outlined">tab_unselected</span>
+  <span class="label">Trang gốc</span>
+</button>
 
 
  <audio id="tick-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_62f3d17051.mp3?filename=click-124467.mp3"></audio>
@@ -1075,25 +1118,68 @@ popup.onclick = (e)=>{
 </script>
 
  <script>
-  // Dùng luôn params đã khai báo ở đoạn script phía trên
+  /**
+   * PHẦN 1: KHỞI TẠO VÀ XỬ LÝ URL
+   */
+  const params = new URLSearchParams(location.search);
   const isExtensionMode = params.get("extension") === "true";
-  const installBtn = document.getElementById("install-extension-btn");
-
-  if (isExtensionMode && installBtn) {
-      installBtn.classList.add("hidden-ext");
+  
+  // Xóa dấu vết ?extension=true trên thanh địa chỉ nhưng vẫn giữ logic bên dưới
+  if (isExtensionMode) {
+      const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+      window.history.replaceState({ path: newUrl }, '', newUrl);
+      console.log("Extension Mode Activated & Stealth URL enabled. 🚀");
   }
 
-function openAndClose(url) {
-    if (isExtensionMode) {
-        window.open(url, "_blank"); // Mở tab mới
-        // Hét lên với thằng cha (newtab.html của extension)
-        window.parent.postMessage("CLOSE_NEW_TAB", "*");
-    } else {
-        window.location.href = url;
-    }
-}
+  /**
+   * PHẦN 2: KHAI BÁO CÁC PHẦN TỬ UI
+   */
+  const installBtn = document.getElementById("install-extension-btn");
+  const aiBtn = document.getElementById("ai-btn");
+  const originalBtn = document.getElementById("original-ntp-btn");
 
-  // Gắn lại sự kiện cho form search (biến 'form' và 'input' đã có ở script trên)
+  /**
+   * PHẦN 3: HÀM ĐIỀU HƯỚNG (Dành cho Search/News/Weather)
+   */
+  function openAndClose(url) {
+      if (isExtensionMode) {
+          window.open(url, "_blank"); // Mở kết quả ở tab mới
+          window.parent.postMessage("CLOSE_NEW_TAB", "*"); // Đóng cái New Tab hiện tại
+      } else {
+          window.location.href = url;
+      }
+  }
+
+  /**
+   * PHẦN 4: LOGIC EXTENSION-ONLY (Chỉ chạy khi isExtensionMode = true)
+   */
+  if (isExtensionMode) {
+      // Ẩn nút cài đặt extension vì đang dùng rồi
+      if (installBtn) installBtn.classList.add("hidden-ext");
+
+      // Xử lý nút AI (Ghi đè tab)
+      if (aiBtn) {
+          aiBtn.classList.add("extension-only");
+          aiBtn.addEventListener("click", () => {
+              console.log("Chuyển hướng sang Chế độ AI...");
+              window.parent.postMessage("OPEN_AI_MODE", "*");
+          });
+      }
+
+      // Xử lý nút Trang gốc (Ghi đè tab)
+      if (originalBtn) {
+          originalBtn.classList.add("show-ext");
+          originalBtn.addEventListener("click", () => {
+              console.log("Quay về trang gốc Chrome...");
+              window.parent.postMessage("OPEN_ORIGINAL_NTP", "*");
+          });
+      }
+  }
+
+  /**
+   * PHẦN 5: GẮN SỰ KIỆN CHO FORM VÀ CÁC NÚT CHỨC NĂNG
+   */
+  // Sự kiện Search Form
   if (typeof form !== 'undefined') {
       form.addEventListener("submit", e => {
           e.preventDefault();
@@ -1104,7 +1190,7 @@ function openAndClose(url) {
       });
   }
 
-  // Gắn sự kiện cho các nút News và Weather
+  // Sự kiện cho News và Weather
   document.querySelectorAll(".google-news-btn, .weather-btn").forEach(btn => {
       btn.addEventListener("click", e => {
           if (isExtensionMode) {
@@ -1114,39 +1200,5 @@ function openAndClose(url) {
       });
   });
 </script>
-
-  <script>
-const aiBtn = document.getElementById("ai-btn");
-
-if (isExtensionMode) {
-    if (aiBtn) {
-        aiBtn.classList.add("extension-only");
-    }
-
-    aiBtn.addEventListener("click", () => {
-        // Chỉ gửi 1 lệnh duy nhất để Background ghi đè URL
-        console.log("Đang chuyển hướng sang Chế độ AI...");
-        window.parent.postMessage("OPEN_AI_MODE", "*");
-        
-        // Tuyệt đối KHÔNG gọi CLOSE_NEW_TAB ở đây nữa nhé bro!
-    });
-}
-  </script>
-
-  <script>
-    // 1. Lấy giá trị từ URL hiện tại
-const params = new URLSearchParams(location.search);
-
-// 2. "Xóa dấu vết" trên thanh URL mà không làm mất tính năng
-if (isExtensionMode) {
-    // Tạo một URL mới bằng cách xóa param 'extension'
-    const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-    
-    // Đẩy URL mới lên thanh địa chỉ nhưng vẫn giữ nguyên trạng thái trang web
-    window.history.replaceState({ path: newUrl }, '', newUrl);
-    
-}
-  </script>
-
 </body>
 </html>
