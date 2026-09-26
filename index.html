@@ -507,6 +507,242 @@ main {
   transform: rotate(90deg);
 }
 
+/* ===== BOOKMARK BUTTON (chỉ hiện khi ?extension=true) ===== */
+#bookmark-btn {
+  position: fixed;
+  top: 16px;
+  right: 130px; /* nằm bên trái nút Apps */
+
+  display: none; /* Mặc định ẩn, chỉ hiện qua JS khi extension mode */
+  align-items: center;
+  gap: 8px;
+
+  padding: 10px 14px;
+  border-radius: 14px;
+
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+
+  font-size: 13px;
+  z-index: 10000;
+
+  backdrop-filter: blur(10px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#bookmark-btn.show-ext {
+  display: flex;
+}
+
+#bookmark-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+#bookmark-btn .material-symbols-outlined {
+  font-size: 20px;
+}
+
+/* ===== BOOKMARK PANEL (trượt từ phải, nền blur) ===== */
+#bookmark-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  z-index: 20001;
+}
+
+#bookmark-backdrop.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#bookmark-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 340px;
+  max-width: 85vw;
+
+  background: rgba(24, 24, 28, 0.92);
+  color: #fff;
+  box-shadow: -20px 0 60px rgba(0, 0, 0, 0.5);
+
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+
+  z-index: 20002;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#bookmark-panel.show {
+  transform: translateX(0);
+}
+
+#bookmark-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+#bookmark-panel-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+#bookmark-panel-close {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: #fff;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+#bookmark-panel-close:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: rotate(90deg);
+}
+
+#bookmark-panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 8px 24px;
+}
+
+#bookmark-panel-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+#bookmark-panel-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+
+.bm-folder > summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.15s ease;
+}
+
+.bm-folder > summary::-webkit-details-marker {
+  display: none;
+}
+
+.bm-folder > summary:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.bm-folder[open] > summary .material-symbols-outlined.bm-caret {
+  transform: rotate(90deg);
+}
+
+.bm-caret {
+  font-size: 18px;
+  transition: transform 0.15s ease;
+}
+
+.bm-icon {
+  font-size: 18px;
+  opacity: 0.85;
+}
+
+.bm-children {
+  padding-left: 18px;
+  border-left: 1px dashed rgba(255, 255, 255, 0.12);
+  margin-left: 12px;
+}
+
+.bm-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  color: #dfe3ff;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background 0.15s ease;
+}
+
+.bm-link:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.bm-empty, .bm-loading, .bm-error {
+  padding: 20px 14px;
+  opacity: 0.7;
+  font-size: 13.5px;
+  text-align: center;
+}
+
+/* ===== DOCK "Mở Chrome Apps" (chỉ hiện trong Apps dialog khi extension mode) ===== */
+#apps-dock {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+
+  display: none;
+  align-items: center;
+  gap: 8px;
+
+  padding: 10px 16px;
+  border-radius: 14px;
+
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+
+  font-size: 13px;
+  z-index: 3;
+
+  backdrop-filter: blur(10px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#apps-dock.show-ext {
+  display: flex;
+}
+
+#apps-dock:hover {
+  transform: translateX(-50%) translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+#apps-dock .material-symbols-outlined {
+  font-size: 20px;
+}
+
 body.paused * {
   animation-play-state: paused !important;
   transition: none !important;
@@ -691,6 +927,12 @@ body.paused * {
   <div id="date">Loading...</div>
   <div class="xp-bar"><div class="xp-fill" id="xp-fill"></div></div>
   <div class="quote" id="quote"></div>
+  <!-- ===== BOOKMARK BUTTON (chỉ hiện khi ?extension=true) ===== -->
+<button id="bookmark-btn" title="Bookmark">
+  <span class="material-symbols-outlined">bookmark</span>
+  <span class="label">Bookmark</span>
+</button>
+
   <!-- ===== APPS BUTTON ===== -->
 <button id="apps-btn" title="Apps">
   <span class="material-symbols-outlined">apps</span>
@@ -726,6 +968,26 @@ body.paused * {
       frameborder="0"
       loading="lazy"
     ></iframe>
+
+    <!-- Dock mở Chrome Apps, chỉ hiện khi ở extension mode -->
+    <button id="apps-dock" title="Mở Chrome Apps">
+      <span class="material-symbols-outlined">apps</span>
+      <span class="label">Mở Chrome Apps</span>
+    </button>
+  </div>
+</div>
+
+<!-- ===== BOOKMARK PANEL ===== -->
+<div id="bookmark-backdrop"></div>
+<div id="bookmark-panel">
+  <div id="bookmark-panel-header">
+    <h3>Bookmarks</h3>
+    <button id="bookmark-panel-close" title="Close">
+      <span class="material-symbols-outlined" style="font-size:18px;">close</span>
+    </button>
+  </div>
+  <div id="bookmark-panel-body">
+    <div class="bm-loading">Đang tải bookmark...</div>
   </div>
 </div>
 
@@ -1073,6 +1335,149 @@ appsOverlay.addEventListener("click", e => {
     appsOverlay.classList.remove("show");
   }
 });
+</script>
+
+<script>
+/**
+ * ===== TÍNH NĂNG MỚI (chỉ hoạt động khi ?extension=true) =====
+ * 1. Nút Bookmark -> mở panel bên phải, nền blur, hiển thị cây thư mục bookmark
+ * 2. Dock "Mở Chrome Apps" trong dialog Apps -> yêu cầu extension ghi đè
+ *    tab hiện tại thành chrome://apps
+ */
+
+const bookmarkBtn = document.getElementById("bookmark-btn");
+const bookmarkBackdrop = document.getElementById("bookmark-backdrop");
+const bookmarkPanel = document.getElementById("bookmark-panel");
+const bookmarkPanelClose = document.getElementById("bookmark-panel-close");
+const bookmarkPanelBody = document.getElementById("bookmark-panel-body");
+const appsDock = document.getElementById("apps-dock");
+
+let bookmarksLoaded = false;
+
+function openBookmarkPanel() {
+  bookmarkBackdrop.classList.add("show");
+  bookmarkPanel.classList.add("show");
+
+  if (!bookmarksLoaded) {
+    bookmarkPanelBody.innerHTML = `<div class="bm-loading">Đang tải bookmark...</div>`;
+    // Gửi yêu cầu lấy cây bookmark tới extension (qua newtab.js)
+    window.parent.postMessage({ type: "GET_BOOKMARKS" }, "*");
+  }
+}
+
+function closeBookmarkPanel() {
+  bookmarkBackdrop.classList.remove("show");
+  bookmarkPanel.classList.remove("show");
+}
+
+// Tạo icon Material Symbols
+function bmIcon(name, extraClass) {
+  const span = document.createElement("span");
+  span.className = "material-symbols-outlined bm-icon" + (extraClass ? " " + extraClass : "");
+  span.textContent = name;
+  return span;
+}
+
+// Đệ quy dựng cây bookmark từ dữ liệu chrome.bookmarks.getTree()
+function renderBookmarkNode(node) {
+  // Node là 1 bookmark (có url)
+  if (node.url) {
+    const a = document.createElement("a");
+    a.className = "bm-link";
+    a.href = node.url;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.title = node.title || node.url;
+    a.appendChild(bmIcon("link"));
+    const text = document.createElement("span");
+    text.textContent = node.title || node.url;
+    a.appendChild(text);
+    return a;
+  }
+
+  // Node là 1 thư mục
+  const details = document.createElement("details");
+  details.className = "bm-folder";
+
+  const summary = document.createElement("summary");
+  summary.appendChild(bmIcon("chevron_right", "bm-caret"));
+  summary.appendChild(bmIcon("folder"));
+  const label = document.createElement("span");
+  label.textContent = node.title || "Bookmarks";
+  summary.appendChild(label);
+  details.appendChild(summary);
+
+  const childrenWrap = document.createElement("div");
+  childrenWrap.className = "bm-children";
+
+  if (node.children && node.children.length) {
+    node.children.forEach(child => {
+      childrenWrap.appendChild(renderBookmarkNode(child));
+    });
+  } else {
+    const empty = document.createElement("div");
+    empty.className = "bm-empty";
+    empty.textContent = "Trống";
+    childrenWrap.appendChild(empty);
+  }
+
+  details.appendChild(childrenWrap);
+  return details;
+}
+
+function renderBookmarkTree(rootNodes) {
+  bookmarkPanelBody.innerHTML = "";
+
+  if (!rootNodes || !rootNodes.length) {
+    bookmarkPanelBody.innerHTML = `<div class="bm-empty">Không có bookmark nào.</div>`;
+    return;
+  }
+
+  // rootNodes[0] thường là node gốc ảo, con của nó mới là "Bookmark bar", "Other bookmarks",...
+  const topLevelFolders = rootNodes[0] && rootNodes[0].children ? rootNodes[0].children : rootNodes;
+
+  topLevelFolders.forEach((folder, idx) => {
+    const el = renderBookmarkNode(folder);
+    // Mở sẵn thư mục đầu tiên (thường là "Bookmarks bar") cho tiện nhìn
+    if (idx === 0 && el.tagName === "DETAILS") el.open = true;
+    bookmarkPanelBody.appendChild(el);
+  });
+}
+
+if (bookmarkBtn) {
+  bookmarkBtn.addEventListener("click", openBookmarkPanel);
+}
+if (bookmarkPanelClose) {
+  bookmarkPanelClose.addEventListener("click", closeBookmarkPanel);
+}
+if (bookmarkBackdrop) {
+  bookmarkBackdrop.addEventListener("click", closeBookmarkPanel);
+}
+
+// Nhận dữ liệu bookmark trả về từ extension (qua newtab.js)
+window.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "BOOKMARKS_DATA") {
+    const response = event.data.data;
+    if (response && response.success) {
+      bookmarksLoaded = true;
+      renderBookmarkTree(response.tree);
+    } else {
+      bookmarkPanelBody.innerHTML = `<div class="bm-error">Không thể tải bookmark${response && response.error ? ": " + response.error : ""}.</div>`;
+    }
+  }
+});
+
+// Chỉ hiện nút Bookmark + dock "Mở Chrome Apps" khi đang chạy trong extension
+if (isExtensionMode) {
+  if (bookmarkBtn) bookmarkBtn.classList.add("show-ext");
+  if (appsDock) {
+    appsDock.classList.add("show-ext");
+    appsDock.addEventListener("click", () => {
+      console.log("Yêu cầu mở Chrome Apps...");
+      window.parent.postMessage({ type: "OPEN_CHROME_APPS" }, "*");
+    });
+  }
+}
 </script>
 
   <script>
