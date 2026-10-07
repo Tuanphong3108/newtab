@@ -243,9 +243,18 @@
 
 /* ===== SUGGEST DROPDOWN ===== */
 #suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  max-height: 320px;
+  overflow-y: auto;
   list-style: none;
   margin: 8px 0 0;
   padding: 0;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 
   background: rgba(0, 0, 0, 0.6);
   border-radius: 12px;
@@ -270,7 +279,8 @@
   animation: fadeInItem 0.15s ease;
 }
 
-#suggestions li:hover {
+#suggestions li:hover,
+#suggestions li.active {
   background: rgba(255, 255, 255, 0.12);
 }
 
@@ -590,8 +600,82 @@ main {
 
 #bookmark-panel-header h3 {
   margin: 0;
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 400;
+  font-family: 'LF Minecraft Ten', monospace;
+}
+
+/* ===== THANH TÌM KIẾM TRONG PANEL BOOKMARK ===== */
+#bookmark-search-wrap {
+  position: relative;
+  padding: 10px 12px 6px;
+  flex-shrink: 0;
+}
+
+#bookmark-search-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 36px 10px 38px;
+  border: none;
+  outline: none;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 13.5px;
+  font-family: inherit;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+#bookmark-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+#bookmark-search-input:focus {
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.18);
+}
+
+#bookmark-search-icon {
+  position: absolute;
+  left: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  opacity: 0.7;
+  pointer-events: none;
+  margin-top: 2px;
+}
+
+#bookmark-search-clear {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-top: 2px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: #fff;
+  opacity: 0.7;
+  cursor: pointer;
+  padding: 2px;
+}
+
+#bookmark-search-clear.show { display: flex; }
+#bookmark-search-clear:hover { opacity: 1; }
+#bookmark-search-clear .material-symbols-outlined { font-size: 18px; }
+
+.bm-link .bm-path {
+  margin-left: auto;
+  padding-left: 8px;
+  font-size: 11px;
+  opacity: 0.45;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 40%;
 }
 
 #bookmark-panel-close {
@@ -1183,6 +1267,13 @@ body.paused * {
       </button>
     </div>
   </div>
+  <div id="bookmark-search-wrap">
+    <span class="material-symbols-outlined" id="bookmark-search-icon">search</span>
+    <input id="bookmark-search-input" type="text" placeholder="Tìm bookmark..." autocomplete="off" spellcheck="false">
+    <button id="bookmark-search-clear" type="button" title="Xoá">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+  </div>
   <div id="bookmark-panel-body">
     <div class="bm-loading">Đang tải bookmark...</div>
   </div>
@@ -1418,56 +1509,120 @@ const input = document.getElementById("search-input");
 const list  = document.getElementById("suggestions");
 const imageBtn = document.getElementById("image-search-btn");
 
+/* điều hướng: extension → mở tab mới + đóng tab hiện tại; thường → chuyển trang */
+function goTo(url) {
+  if (isExtensionMode) {
+    window.open(url, "_blank");
+    window.parent.postMessage("CLOSE_NEW_TAB", "*");
+  } else {
+    window.location.href = url;
+  }
+}
+
+function doSearch(q) {
+  q = (q || "").trim();
+  if (!q) return;
+  goTo("https://www.google.com/search?q=" + encodeURIComponent(q));
+}
+
 /* submit search */
 form.addEventListener("submit", e => {
   e.preventDefault();
-  const q = input.value.trim();
-  if (q) {
-    window.location.href =
-      "https://www.google.com/search?q=" + encodeURIComponent(q);
-  }
+  doSearch(input.value);
 });
 
 /* google suggest */
+let suggestTimer = null;
+let suggestSeq = 0;
+let activeIdx = -1;
+
+function hideSuggest() {
+  list.classList.remove("show");
+  activeIdx = -1;
+}
+
+function setActive(i) {
+  const items = list.querySelectorAll("li");
+  items.forEach(li => li.classList.remove("active"));
+  activeIdx = i;
+  if (i >= 0 && items[i]) {
+    items[i].classList.add("active");
+    items[i].scrollIntoView({ block: "nearest" });
+  }
+}
+
+function renderSuggest(items) {
+  list.innerHTML = "";
+  activeIdx = -1;
+  if (!items.length) { hideSuggest(); return; }
+
+  items.forEach(text => {
+    const li = document.createElement("li");
+    li.textContent = text;
+    // dùng mousedown để chạy trước khi input mất focus
+    li.addEventListener("mousedown", e => {
+      e.preventDefault();
+      input.value = text;
+      hideSuggest();
+      doSearch(text); // extension: mở tab mới + đóng tab hiện tại
+    });
+    list.appendChild(li);
+  });
+  list.classList.add("show");
+}
+
+async function fetchSuggest(q) {
+  const seq = ++suggestSeq;
+  try {
+    const r = await fetch(
+      "https://suggestqueries.google.com/complete/search?client=firefox&hl=vi&q=" +
+        encodeURIComponent(q)
+    );
+    const data = await r.json();
+    if (seq !== suggestSeq) return; // bỏ kết quả cũ
+    renderSuggest((data && data[1]) || []);
+  } catch (err) {
+    if (seq === suggestSeq) hideSuggest();
+  }
+}
+
 input.addEventListener("input", () => {
   const q = input.value.trim();
-
+  clearTimeout(suggestTimer);
   if (!q) {
-    list.classList.remove("show");
+    suggestSeq++;
     list.innerHTML = "";
+    hideSuggest();
     return;
   }
+  suggestTimer = setTimeout(() => fetchSuggest(q), 120);
+});
 
-  fetch(
-    "https://suggestqueries.google.com/complete/search?client=firefox&q=" +
-      encodeURIComponent(q)
-  )
-    .then(r => r.json())
-    .then(data => {
-      list.innerHTML = "";
+input.addEventListener("focus", () => {
+  if (list.children.length) list.classList.add("show");
+});
 
-      data[1].forEach(text => {
-        const li = document.createElement("li");
-        li.textContent = text;
+/* điều hướng gợi ý bằng bàn phím */
+input.addEventListener("keydown", e => {
+  const items = list.querySelectorAll("li");
+  if (!items.length || !list.classList.contains("show")) return;
 
-        li.addEventListener("click", () => {
-          input.value = text;
-          form.requestSubmit();
-        });
-
-        list.appendChild(li);
-      });
-
-      list.classList.add("show");
-    })
-    .catch(() => {
-      list.classList.remove("show");
-    });
+  if (e.key === "ArrowDown") {
+    e.preventDefault();
+    setActive((activeIdx + 1) % items.length);
+    input.value = items[activeIdx].textContent;
+  } else if (e.key === "ArrowUp") {
+    e.preventDefault();
+    setActive((activeIdx - 1 + items.length) % items.length);
+    input.value = items[activeIdx].textContent;
+  } else if (e.key === "Escape") {
+    hideSuggest();
+  }
 });
 
 /* click image search → Google Lens */
 imageBtn.addEventListener("click", () => {
-  window.location.href = "https://lens.google.com";
+  goTo("https://lens.google.com");
 });
 
 /* click ngoài → đóng suggest */
@@ -1632,6 +1787,7 @@ window.addEventListener("message", (event) => {
 function openBookmarkPanel() {
   bookmarkBackdrop.classList.add("show");
   bookmarkPanel.classList.add("show");
+  setTimeout(() => { const i = document.getElementById("bookmark-search-input"); if (i) i.focus(); }, 320);
   if (!bookmarksLoaded) {
     loadBookmarks();
   }
@@ -1761,7 +1917,81 @@ function renderBookmarkNode(node) {
   return details;
 }
 
+/* ===== TÌM KIẾM BOOKMARK ===== */
+const bmSearchInput = document.getElementById("bookmark-search-input");
+const bmSearchClear = document.getElementById("bookmark-search-clear");
+
+function bmNormalize(str) {
+  return (str || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d");
+}
+
+// Gom tất cả bookmark (có url) khớp từ khoá, kèm đường dẫn thư mục
+function bmSearchCollect(nodes, terms, path, out) {
+  (nodes || []).forEach(node => {
+    if (node.url) {
+      const hay = bmNormalize((node.title || "") + " " + node.url);
+      if (terms.every(t => hay.includes(t))) out.push({ node, path: path.join(" / ") });
+    } else if (node.children) {
+      const name = node.title || "";
+      bmSearchCollect(node.children, terms, name ? path.concat(name) : path, out);
+    }
+  });
+}
+
+function renderBookmarkSearchResults(query) {
+  const terms = bmNormalize(query).split(/\s+/).filter(Boolean);
+  const topLevel = bmLastTree && bmLastTree[0] && bmLastTree[0].children ? bmLastTree[0].children : (bmLastTree || []);
+  const results = [];
+  bmSearchCollect(topLevel, terms, [], results);
+
+  bookmarkPanelBody.innerHTML = "";
+  if (!results.length) {
+    bookmarkPanelBody.innerHTML = `<div class="bm-empty">Không tìm thấy bookmark nào.</div>`;
+    return;
+  }
+  results.forEach(({ node, path }) => {
+    const el = renderBookmarkNode(node);
+    if (path) {
+      const p = document.createElement("span");
+      p.className = "bm-path";
+      p.textContent = path;
+      el.appendChild(p);
+    }
+    bookmarkPanelBody.appendChild(el);
+  });
+}
+
+function bmApplySearch() {
+  const q = bmSearchInput ? bmSearchInput.value.trim() : "";
+  if (bmSearchClear) bmSearchClear.classList.toggle("show", !!q);
+  if (!bmLastTree) return;
+  if (q) renderBookmarkSearchResults(q);
+  else renderBookmarkTree(bmLastTree);
+}
+
+if (bmSearchInput) {
+  bmSearchInput.addEventListener("input", bmApplySearch);
+  bmSearchInput.addEventListener("keydown", e => {
+    if (e.key === "Escape") {
+      if (bmSearchInput.value) { bmSearchInput.value = ""; bmApplySearch(); }
+      else closeBookmarkPanel();
+    }
+  });
+}
+if (bmSearchClear) {
+  bmSearchClear.addEventListener("click", () => {
+    bmSearchInput.value = "";
+    bmApplySearch();
+    bmSearchInput.focus();
+  });
+}
+
 function renderBookmarkTree(rootNodes) {
+  // Nếu đang tìm kiếm thì giữ kết quả lọc thay vì vẽ lại cả cây
+  if (bmSearchInput && bmSearchInput.value.trim() && rootNodes === bmLastTree) {
+    renderBookmarkSearchResults(bmSearchInput.value.trim());
+    return;
+  }
   bookmarkPanelBody.innerHTML = "";
 
   if (!rootNodes || !rootNodes.length) {
@@ -2095,15 +2325,7 @@ popup.onclick = (e)=>{
   /**
    * PHẦN 5: GẮN SỰ KIỆN
    */
-  if (typeof form !== 'undefined') {
-      form.addEventListener("submit", e => {
-          e.preventDefault();
-          const q = input.value.trim();
-          if (q) {
-              openAndClose("https://www.google.com/search?q=" + encodeURIComponent(q));
-          }
-      });
-  }
+  // Submit tìm kiếm đã được xử lý ở script phía trên (doSearch)
 
   document.querySelectorAll(".google-news-btn, .weather-btn").forEach(btn => {
       btn.addEventListener("click", e => {
