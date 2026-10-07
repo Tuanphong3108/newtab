@@ -24,6 +24,8 @@
   src: url('https://tuanphong3108.github.io/google-sans-do-not-access/LF%20Minecraft%20Ten.ttf') format('truetype');
 }
 
+   html { overflow: hidden; }
+
    body {
       margin: 0;
       padding: 0;
@@ -248,7 +250,7 @@
   left: 0;
   right: 0;
   z-index: 50;
-  max-height: 320px;
+  max-height: min(320px, 40vh);
   overflow-y: auto;
   list-style: none;
   margin: 8px 0 0;
@@ -1512,7 +1514,7 @@ const imageBtn = document.getElementById("image-search-btn");
 /* điều hướng: extension → mở tab mới + đóng tab hiện tại; thường → chuyển trang */
 function goTo(url) {
   if (isExtensionMode) {
-    window.open(url, "_blank");
+    window.open(url, "_blank", "noopener,noreferrer");
     window.parent.postMessage("CLOSE_NEW_TAB", "*");
   } else {
     window.location.href = url;
@@ -1547,7 +1549,11 @@ function setActive(i) {
   activeIdx = i;
   if (i >= 0 && items[i]) {
     items[i].classList.add("active");
-    items[i].scrollIntoView({ block: "nearest" });
+    // cuộn riêng trong danh sách gợi ý, KHÔNG dùng scrollIntoView (nó có thể cuộn cả trang làm ô tìm kiếm trượt mất)
+    const li = items[i];
+    if (li.offsetTop < list.scrollTop) list.scrollTop = li.offsetTop;
+    else if (li.offsetTop + li.offsetHeight > list.scrollTop + list.clientHeight)
+      list.scrollTop = li.offsetTop + li.offsetHeight - list.clientHeight;
   }
 }
 
@@ -2289,7 +2295,7 @@ popup.onclick = (e)=>{
    */
   function openAndClose(url) {
       if (isExtensionMode) {
-          window.open(url, "_blank");
+          window.open(url, "_blank", "noopener,noreferrer");
           window.parent.postMessage("CLOSE_NEW_TAB", "*");
       } else {
           window.location.href = url;
@@ -2307,8 +2313,12 @@ popup.onclick = (e)=>{
       if (aiBtn) {
           aiBtn.classList.add("extension-only");
           aiBtn.addEventListener("click", () => {
-              console.log("Chuyển sang AI Mode...");
-              window.parent.postMessage("OPEN_AI_MODE", "*");
+              const q = input.value.trim();
+              // Có nội dung → Chế độ AI với câu hỏi; trống → trang Google AI
+              const url = q
+                  ? "https://www.google.com/search?udm=50&q=" + encodeURIComponent(q)
+                  : "https://www.google.com/ai";
+              openAndClose(url);
           });
       }
 
