@@ -837,16 +837,82 @@ main {
   min-width: 230px;
   background: #fff;
   color: #202124;
-  border-radius: 10px;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3);
+  border-radius: 14px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
   padding: 6px 0;
-  display: none;
   font-size: 13.5px;
   font-family: 'Google Sans Flex', 'Segoe UI', Roboto, Arial, sans-serif;
+
+  /* zoom-in / zoom-out */
+  transform-origin: top left;
+  transform: scale(0.82);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    transform 0.18s cubic-bezier(0.4, 0, 1, 1),
+    opacity 0.16s ease,
+    visibility 0s linear 0.18s;
 }
 
 .bm-context-menu.show {
-  display: block;
+  transform: scale(1);
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition:
+    transform 0.26s cubic-bezier(0.22, 1.2, 0.36, 1),
+    opacity 0.16s ease,
+    visibility 0s;
+}
+
+/* Lớp nền mờ: làm mờ mọi thứ xung quanh, trừ menu và mục đang chọn */
+#ctx-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99990;
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  /* khi đóng: từ từ hết mờ */
+  transition: opacity 0.35s ease, visibility 0s linear 0.35s;
+}
+
+#ctx-backdrop.show {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 0.22s ease, visibility 0s;
+}
+
+/* Bản sao của mục đang chọn, nằm phía trên lớp mờ (không bị mờ) */
+.ctx-clone {
+  position: fixed;
+  z-index: 99995;
+  margin: 0;
+  pointer-events: none;
+  box-sizing: border-box;
+  transform: scale(1);
+  transition: transform 0.22s cubic-bezier(0.22, 1.2, 0.36, 1), opacity 0.3s ease;
+}
+
+.ctx-clone.pop {
+  transform: scale(1.04);
+}
+
+.ctx-clone.bm-link,
+.ctx-clone > summary {
+  background: rgba(40, 40, 48, 0.92);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.35);
+}
+
+.ctx-clone.fading { opacity: 0; }
+
+.bm-context-menu.bm-target-site .bm-manage-only {
+  display: none;
 }
 
 .bm-context-menu button {
@@ -1219,7 +1285,8 @@ body.paused * {
   font-family: 'LF Minecraft Ten', monospace;
   font-size: 12px;
   font-weight: 400;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
+  text-transform: none;
   color: #fff;
   opacity: 0.8;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
@@ -1375,12 +1442,13 @@ body.paused * {
   <button data-action="open-new-tab" class="bm-link-only">Mở trong thẻ mới</button>
   <button data-action="open-new-window" class="bm-link-only">Mở trong cửa sổ mới</button>
   <button data-action="open-incognito" class="bm-link-only">Mở trong cửa sổ ẩn danh</button>
-  <hr class="bm-link-only">
-  <button data-action="edit">Chỉnh sửa...</button>
-  <button data-action="move">Chuyển đến thư mục khác</button>
-  <hr>
-  <button data-action="delete" class="bm-danger">Xoá</button>
+  <hr class="bm-link-only bm-manage-only">
+  <button data-action="edit" class="bm-manage-only">Chỉnh sửa...</button>
+  <button data-action="move" class="bm-manage-only">Chuyển đến thư mục khác</button>
+  <hr class="bm-manage-only">
+  <button data-action="delete" class="bm-danger bm-manage-only">Xoá</button>
 </div>
+<div id="ctx-backdrop"></div>
 
 <!-- ===== MODAL THÊM / SỬA BOOKMARK ===== -->
 <div id="bm-modal-backdrop" class="bm-modal-backdrop">
@@ -1461,7 +1529,7 @@ body.paused * {
 
 <!-- ===== CÁC TRANG THƯỜNG TRUY CẬP ===== -->
 <div id="frequent-sites">
-  <div id="frequent-title">Các trang thường truy cập</div>
+  <div id="frequent-title">các trang thường truy cập</div>
   <div id="frequent-list"></div>
 </div>
 
@@ -1971,7 +2039,7 @@ function renderBookmarkNode(node) {
     // Chuột phải: menu tuỳ chỉnh
     a.addEventListener("contextmenu", (e) => {
       e.preventDefault();
-      bmOpenContextMenu(e.clientX, e.clientY, { id: node.id, url: node.url, title: node.title, isFolder: false });
+      bmOpenContextMenu(e.clientX, e.clientY, { id: node.id, url: node.url, title: node.title, isFolder: false }, a);
     });
 
     return a;
@@ -1996,7 +2064,7 @@ function renderBookmarkNode(node) {
     summary.addEventListener("contextmenu", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      bmOpenContextMenu(e.clientX, e.clientY, { id: node.id, title: node.title, isFolder: true });
+      bmOpenContextMenu(e.clientX, e.clientY, { id: node.id, title: node.title, isFolder: true }, summary);
     });
   }
 
@@ -2149,26 +2217,91 @@ function bmFindNodeById(nodes, id) {
   return null;
 }
 
-/* ===== MENU CHUỘT PHẢI ===== */
-function bmOpenContextMenu(x, y, target) {
+/* ===== MENU CHUỘT PHẢI (zoom-in/out + làm mờ xung quanh) ===== */
+const ctxBackdrop = document.getElementById("ctx-backdrop");
+let ctxClone = null;        // bản sao mục đang chọn (nằm trên lớp mờ)
+let ctxSourceEl = null;     // mục gốc (tạm ẩn trong lúc menu mở)
+let ctxCleanupTimer = null;
+
+function ctxRemoveClone() {
+  if (ctxClone) { ctxClone.remove(); ctxClone = null; }
+  if (ctxSourceEl) { ctxSourceEl.style.visibility = ""; ctxSourceEl = null; }
+}
+
+function ctxMakeClone(el) {
+  const r = el.getBoundingClientRect();
+  let clone;
+  if (el.tagName === "SUMMARY") {
+    // summary chỉ có style khi nằm trong details.bm-folder
+    clone = document.createElement("details");
+    clone.className = "bm-folder";
+    clone.appendChild(el.cloneNode(true));
+  } else {
+    clone = el.cloneNode(true);
+  }
+  clone.removeAttribute("id");
+  clone.classList.add("ctx-clone");
+  clone.style.left = r.left + "px";
+  clone.style.top = r.top + "px";
+  clone.style.width = r.width + "px";
+  clone.style.height = r.height + "px";
+  return clone;
+}
+
+function bmOpenContextMenu(x, y, target, sourceEl) {
+  clearTimeout(ctxCleanupTimer);
+  ctxRemoveClone();
+
   bmContextTarget = target;
   bmContextMenu.classList.toggle("bm-target-folder", !!target.isFolder);
-  bmContextMenu.classList.add("show");
+  bmContextMenu.classList.toggle("bm-target-site", !!target.isSite);
 
-  // Đặt vị trí, tránh tràn ra ngoài màn hình
-  const menuWidth = 240, menuHeight = 220;
-  const posX = Math.min(x, window.innerWidth - menuWidth - 8);
-  const posY = Math.min(y, window.innerHeight - menuHeight - 8);
-  bmContextMenu.style.left = Math.max(8, posX) + "px";
+  // Giữ mục đang chọn rõ nét: dựng bản sao phía trên lớp mờ
+  if (sourceEl) {
+    ctxSourceEl = sourceEl;
+    ctxClone = ctxMakeClone(sourceEl);
+    document.body.appendChild(ctxClone);
+    sourceEl.style.visibility = "hidden";
+    requestAnimationFrame(() => ctxClone && ctxClone.classList.add("pop"));
+  }
+
+  // Đo kích thước thật của menu (vẫn có layout dù đang ẩn)
+  const menuWidth = bmContextMenu.offsetWidth || 240;
+  const menuHeight = bmContextMenu.offsetHeight || 220;
+  const posX = Math.max(8, Math.min(x, window.innerWidth - menuWidth - 8));
+  let posY = y;
+  let originY = "top";
+  if (y + menuHeight > window.innerHeight - 8) {   // không đủ chỗ phía dưới → mở lên trên
+    posY = Math.max(8, y - menuHeight);
+    originY = "bottom";
+  }
+  bmContextMenu.style.left = posX + "px";
   bmContextMenu.style.top = Math.max(8, posY) + "px";
+  bmContextMenu.style.transformOrigin = (x > posX + menuWidth / 2 ? "right" : "left") + " " + originY;
+
+  ctxBackdrop.classList.add("show");
+  bmContextMenu.classList.add("show");
 }
 
 function bmCloseContextMenu() {
-  bmContextMenu.classList.remove("show");
+  if (!bmContextMenu.classList.contains("show")) return;
+  bmContextMenu.classList.remove("show");   // zoom-out
+  ctxBackdrop.classList.remove("show");     // từ từ hết mờ
+  if (ctxClone) ctxClone.classList.remove("pop");
+  clearTimeout(ctxCleanupTimer);
+  ctxCleanupTimer = setTimeout(ctxRemoveClone, 360);
 }
 
 document.addEventListener("click", (e) => {
   if (!bmContextMenu.contains(e.target)) bmCloseContextMenu();
+});
+// chuột phải ra ngoài menu cũng chỉ đóng menu (và chặn menu mặc định của trình duyệt)
+ctxBackdrop.addEventListener("contextmenu", (e) => {
+  e.preventDefault();
+  bmCloseContextMenu();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") bmCloseContextMenu();
 });
 window.addEventListener("blur", bmCloseContextMenu);
 
@@ -2344,6 +2477,12 @@ function freqBuildItem(site, extId) {
   a.addEventListener("click", (e) => {
     e.preventDefault();
     bmSendCmd("OPEN_URL_IN_TAB", { url: site.url });
+  });
+
+  // Chuột phải: chỉ có 3 mục mở thẻ mới / cửa sổ mới / ẩn danh
+  a.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+    bmOpenContextMenu(e.clientX, e.clientY, { url: site.url, title: site.title, isFolder: false, isSite: true }, a);
   });
   return a;
 }
