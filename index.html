@@ -4,6 +4,7 @@
   <meta name="google" content="notranslate">
   <meta charset="UTF-8">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;600&display=swap" rel="stylesheet">
   <title>New Tab</title>
 
   <!-- service worker -->
@@ -1196,6 +1197,94 @@ body.paused * {
 #original-ntp-btn .label {
   font-weight: 500;
 }
+
+/* ===== CÁC TRANG THƯỜNG TRUY CẬP (chỉ hiện khi ?extension=true) ===== */
+#frequent-sites {
+  position: fixed;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100vw - 480px);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 2;
+}
+
+#frequent-sites.show-ext.has-items { display: flex; }
+
+#frequent-title {
+  font-family: 'LF Minecraft Ten', monospace;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  color: #fff;
+  opacity: 0.8;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  text-align: center;
+}
+
+#frequent-list {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.freq-item {
+  width: 84px;
+  flex: 0 1 84px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 6px 8px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #fff;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.freq-item:hover {
+  transform: translateY(-3px);
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.freq-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  object-fit: contain;
+  background: rgba(255, 255, 255, 0.12);
+  padding: 4px;
+  box-sizing: content-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.freq-name {
+  font-family: 'Google Sans Flex', 'Segoe UI', Roboto, Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.2;
+  width: 100%;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 900px), (max-height: 640px) {
+  #frequent-sites { display: none !important; }
+}
   </style>
 </head>
 <body>
@@ -1369,6 +1458,12 @@ body.paused * {
   <span class="label">Trang gốc</span>
 </button>
 
+
+<!-- ===== CÁC TRANG THƯỜNG TRUY CẬP ===== -->
+<div id="frequent-sites">
+  <div id="frequent-title">CÁC TRANG THƯỜNG TRUY CẬP</div>
+  <div id="frequent-list"></div>
+</div>
 
  <audio id="tick-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_62f3d17051.mp3?filename=click-124467.mp3"></audio>
 
@@ -2212,9 +2307,61 @@ if (bookmarkPanelClose) bookmarkPanelClose.addEventListener("click", closeBookma
 if (bookmarkBackdrop) bookmarkBackdrop.addEventListener("click", closeBookmarkPanel);
 if (bookmarkAddBtn) bookmarkAddBtn.addEventListener("click", () => bmOpenModal("add", null));
 
+/* ===== CÁC TRANG THƯỜNG TRUY CẬP (lấy từ lịch sử duyệt web) ===== */
+const frequentBox = document.getElementById("frequent-sites");
+const frequentList = document.getElementById("frequent-list");
+
+function freqBuildItem(site, extId) {
+  const a = document.createElement("a");
+  a.className = "freq-item";
+  a.href = site.url;
+  a.title = site.title + "\n" + site.url;
+
+  const fallback = () => {
+    const f = document.createElement("span");
+    f.className = "freq-icon material-symbols-outlined";
+    f.textContent = "language";
+    return f;
+  };
+
+  if (extId) {
+    const img = document.createElement("img");
+    img.className = "freq-icon";
+    img.alt = "";
+    img.src = `chrome-extension://${extId}/_favicon/?pageUrl=${encodeURIComponent(site.url)}&size=64`;
+    img.onerror = () => img.replaceWith(fallback());
+    a.appendChild(img);
+  } else {
+    a.appendChild(fallback());
+  }
+
+  const name = document.createElement("span");
+  name.className = "freq-name";
+  name.textContent = site.title;
+  a.appendChild(name);
+
+  // Giống bookmark: ghi đè URL tab hiện tại
+  a.addEventListener("click", (e) => {
+    e.preventDefault();
+    bmSendCmd("OPEN_URL_IN_TAB", { url: site.url });
+  });
+  return a;
+}
+
+async function loadFrequentSites() {
+  if (!frequentBox) return;
+  const res = await bmSendCmd("GET_FREQUENT_SITES", { limit: 7 });
+  if (!res || !res.success || !res.sites || !res.sites.length) return;
+  bmExtensionId = res.extensionId || bmExtensionId;
+  frequentList.innerHTML = "";
+  res.sites.forEach(site => frequentList.appendChild(freqBuildItem(site, res.extensionId)));
+  frequentBox.classList.add("has-items");
+}
+
 // Chỉ hiện nút Bookmark + dock "Mở Chrome Apps" khi đang chạy trong extension
 if (isExtensionMode) {
   if (bookmarkBtn) bookmarkBtn.classList.add("show-ext");
+  if (frequentBox) { frequentBox.classList.add("show-ext"); loadFrequentSites(); }
   if (appsDock) {
     appsDock.classList.add("show-ext");
     appsDock.addEventListener("click", () => {
